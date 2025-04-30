@@ -1,0 +1,720 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --foreground-rgb: 0, 0, 0;
+  --background-start-rgb: 214, 219, 220;
+  --background-end-rgb: 255, 255, 255;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --foreground-rgb: 255, 255, 255;
+    --background-start-rgb: 0, 0, 0;
+    --background-end-rgb: 0, 0, 0;
+  }
+}
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 240 10% 3.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 240 10% 3.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 240 10% 3.9%;
+    --primary: 240 5.9% 10%;
+    --primary-foreground: 0 0% 98%;
+    --secondary: 240 4.8% 95.9%;
+    --secondary-foreground: 240 5.9% 10%;
+    --muted: 240 4.8% 95.9%;
+    --muted-foreground: 240 3.8% 46.1%;
+    --accent: 240 4.8% 95.9%;
+    --accent-foreground: 240 5.9% 10%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 240 5.9% 90%;
+    --input: 240 5.9% 90%;
+    --ring: 240 10% 3.9%;
+    --chart-1: 12 76% 61%;
+    --chart-2: 173 58% 39%;
+    --chart-3: 197 37% 24%;
+    --chart-4: 43 74% 66%;
+    --chart-5: 27 87% 67%;
+    --radius: 0.5rem;
+  }
+
+  .dark {
+    --background: 240 10% 3.9%;
+    --foreground: 0 0% 98%;
+    --card: 240 10% 3.9%;
+    --card-foreground: 0 0% 98%;
+    --popover: 240 10% 3.9%;
+    --popover-foreground: 0 0% 98%;
+    --primary: 0 0% 98%;
+    --primary-foreground: 240 5.9% 10%;
+    --secondary: 240 3.7% 15.9%;
+    --secondary-foreground: 0 0% 98%;
+    --muted: 240 3.7% 15.9%;
+    --muted-foreground: 240 5% 64.9%;
+    --accent: 240 3.7% 15.9%;
+    --accent-foreground: 0 0% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 240 3.7% 15.9%;
+    --input: 240 3.7% 15.9%;
+    --ring: 240 4.9% 83.9%;
+    --chart-1: 220 70% 50%;
+    --chart-2: 160 60% 45%;
+    --chart-3: 30 80% 55%;
+    --chart-4: 280 65% 60%;
+    --chart-5: 340 75% 55%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+/* Custom scrollbar styles */
+@layer utilities {
+
+  /* Hide scrollbar for Chrome, Safari and Opera */
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Hide scrollbar for IE, Edge and Firefox */
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    /* IE and Edge */
+    scrollbar-width: none;
+    /* Firefox */
+  }
+}
+
+/* Animation for transitions */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+/* Editor styles */
+.yoopta-editor {
+  width: 100% !important;
+  height: 100% !important;
+  @apply bg-background !important;
+}
+
+.dark .yoopta-block-actions-drag,
+.dark .yoopta-block-actions-plus {
+  color: theme('colors.foreground');
+}
+
+.dark .yoopta-block-options-menu-content, .dark .yoopta-action-menu-list-content, .dark .yoo-action-menu-flex {
+  background-color: theme('colors.background');
+}
+.dark .yoopta-button:hover {
+  background-color: theme('colors.muted.DEFAULT');
+}
+.yoopta-heading-two {
+  margin-top: 0 !important;
+}
+
+/* Template Básico */
+.yoopta-editor h1 {
+  font-size: 2rem;
+}
+
+.yoopta-editor h2 {
+  font-size: 1.5rem;
+}
+
+.yoopta-editor h3 {
+  font-size: 1.2rem;
+}
+
+.yoopta-editor p {
+  font-size: 1rem;
+}
+
+
+
+/* Template Minimalista */
+.template-minimal .yoopta-editor {
+  max-width: 700px;
+  /* Mantido para estrutura */
+}
+
+
+/* Template Profissional */
+.template-professional .yoopta-editor {
+  /* Mantido para layout com sidebar */
+  position: relative;
+  padding: 2.5rem;
+  padding-top: 1rem;
+  padding-left: 9rem;
+}
+
+.template-professional .yoopta-editor::before {
+  /* Mantido para sidebar */
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 7rem;
+  height: 100%;
+  background-color: #1a365d;
+  z-index: 0;
+}
+
+.template-professional .yoopta-editor h1 {
+  /* font-size, font-weight, color, margin-bottom removidos */
+  position: relative;
+  /* Mantido se necessário para z-index sobre ::before */
+}
+
+.template-professional .yoopta-editor h2 {
+  /* font-size, font-weight, color, margin-top, margin-bottom, padding-bottom, border-bottom removidos */
+  position: relative;
+}
+
+.template-professional .yoopta-editor h3 {
+  /* font-size, font-weight, color, margin-top, margin-bottom removidos */
+  position: relative;
+}
+
+.template-professional .yoopta-editor p {
+  /* margin-bottom, line-height removidos */
+  position: relative;
+}
+
+.template-professional .yoopta-editor ul {
+  /* margin-left, margin-bottom removidos */
+  position: relative;
+}
+
+.template-professional .yoopta-editor li {
+  /* margin-bottom, position removidos */
+  position: relative;
+}
+
+.template-professional .yoopta-editor li::before {
+  /* Regra removida */
+}
+
+/* Template Criativo */
+.template-creative .yoopta-editor {
+  /* Mantido para borda superior */
+  position: relative;
+  padding: 1.5rem;
+  border-top: 0.5rem solid #ed8936;
+}
+
+.template-creative .yoopta-editor h1 {
+  /* font-size, font-weight, color, margin-bottom, line-height removidos */
+}
+
+.template-creative .yoopta-editor h2 {
+  /* font-size, font-weight, color, position, display, border-bottom removidos */
+}
+
+.template-creative .yoopta-editor h3 {
+  /* font-size, font-weight, color, margin-top, margin-bottom removidos */
+}
+
+.template-creative .yoopta-editor p {
+  /* margin-bottom, line-height removidos */
+}
+
+.template-creative .yoopta-editor ul {
+  /* margin-left, margin-bottom removidos */
+}
+
+.template-creative .yoopta-editor li {
+  /* margin-bottom, position removidos */
+}
+
+.template-creative .yoopta-editor li::before {
+  /* Regra removida */
+}
+
+/* Visualização de template */
+.preview-frame {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  overflow: hidden;
+  background-color: white;
+}
+
+.template-preview {
+  transform: scale(0.8);
+  transform-origin: top center;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  background-color: white;
+  overflow: hidden;
+  transition: all 0.2s ease;
+}
+
+.template-preview:hover {
+  transform: scale(0.82);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+
+/* Adicional: Estilos para menu lateral */
+.template-sidebar {
+  background-color: white;
+  border-right: 1px solid #e2e8f0;
+  height: 100%;
+  transition: all 0.3s ease;
+}
+
+.template-toggle-btn {
+  position: fixed;
+  z-index: 50;
+  top: 1rem;
+  left: 1rem;
+  background-color: white;
+  border-radius: 50%;
+  width: 2.5rem;
+  height: 2.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.template-toggle-btn:hover {
+  background-color: #f7fafc;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Container para o editor */
+.editor-container {
+  max-width: 850px;
+  margin: 0 auto;
+  min-height: 100%;
+  transition: all 0.2s ease-in-out;
+}
+
+/* Estilos base para todos os templates */
+.yoopta-editor {
+  background-color: white;
+  padding: 24px;
+  /* Padding base mantido */
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  border-radius: 2px;
+  position: relative;
+}
+
+/* Estilo para templates com foto */
+.photo-placeholder {
+  background-color: #e2e8f0;
+  border-radius: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #94a3b8;
+  font-size: 24px;
+  overflow: hidden;
+}
+
+/* Template Classic */
+.template-classic .yoopta-editor {
+  padding: 30px;
+  /* font-family removido */
+}
+
+.template-classic .yoopta-editor h1 {
+  /* font-size, font-weight, color, text-align, margin-bottom, border-bottom, padding-bottom removidos */
+}
+
+.template-classic .yoopta-editor h2 {
+  /* font-size, font-weight, color, margin-top, margin-bottom, text-transform, letter-spacing removidos */
+}
+
+.template-classic .yoopta-editor h3 {
+  /* font-size, font-weight, color, margin-top, margin-bottom removidos */
+}
+
+.template-classic .yoopta-editor p {
+  /* margin-bottom, line-height, color removidos */
+}
+
+.template-classic .yoopta-editor ul {
+  /* margin-left, margin-bottom removidos */
+}
+
+.template-classic .yoopta-editor li {
+  /* margin-bottom, position, line-height removidos */
+}
+
+.template-classic .yoopta-editor li::before {
+  /* Regra removida */
+}
+
+/* Template Elegant com espaço para foto */
+.template-elegant .yoopta-editor {
+  /* Mantido para layout */
+  padding: 30px;
+  padding-left: 170px;
+  position: relative;
+  /* font-family removido */
+}
+
+.template-elegant .yoopta-editor::before {
+  /* Mantido para sidebar */
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 140px;
+  height: 100%;
+  background-color: #f8fafc;
+  z-index: 0;
+}
+
+.template-elegant .photo-placeholder {
+  /* Mantido para posicionamento */
+  position: absolute;
+  top: 30px;
+  left: 35px;
+  width: 70px;
+  height: 70px;
+  z-index: 1;
+}
+
+.template-elegant .yoopta-editor h1 {
+  /* font-size, font-weight, color, margin-bottom removidos */
+  position: relative;
+}
+
+.template-elegant .yoopta-editor h2 {
+  /* font-size, font-weight, font-style, color, margin-top, margin-bottom removidos */
+  position: relative;
+}
+
+.template-elegant .yoopta-editor h3 {
+  /* font-size, font-weight, color, margin-top, margin-bottom removidos */
+  position: relative;
+}
+
+.template-elegant .yoopta-editor p {
+  /* margin-bottom, line-height, color removidos */
+  position: relative;
+}
+
+.template-elegant .yoopta-editor ul {
+  /* margin-left, margin-bottom removidos */
+  position: relative;
+}
+
+.template-elegant .yoopta-editor li {
+  /* margin-bottom, position, line-height removidos */
+  position: relative;
+}
+
+.template-elegant .yoopta-editor li::before {
+  /* Regra removida */
+}
+
+/* Template Executive com espaço para foto e divisões claras */
+.template-executive .yoopta-editor {
+  padding: 25px;
+  position: relative;
+  /* font-family removido */
+}
+
+.template-executive .photo-placeholder {
+  /* Mantido para layout */
+  float: right;
+  width: 80px;
+  height: 80px;
+  margin-left: 15px;
+  margin-bottom: 15px;
+}
+
+.template-executive .yoopta-editor h1 {
+  /* font-size, font-weight, color, margin-bottom, padding-bottom, border-bottom removidos */
+}
+
+.template-executive .yoopta-editor h2 {
+  /* font-size, font-weight, color, margin-top, margin-bottom, text-transform, letter-spacing, border-bottom, padding-bottom removidos */
+}
+
+.template-executive .yoopta-editor h3 {
+  /* font-size, font-weight, color, margin-top, margin-bottom removidos */
+}
+
+.template-executive .yoopta-editor p {
+  /* margin-bottom, line-height removidos */
+}
+
+.template-executive .yoopta-editor ul {
+  /* margin-left, margin-bottom removidos */
+}
+
+.template-executive .yoopta-editor li {
+  /* margin-bottom, position, line-height removidos */
+}
+
+.template-executive .yoopta-editor li::before {
+  /* Regra removida */
+}
+
+/* Template Compact para muita informação em pouco espaço */
+.template-compact .yoopta-editor {
+  padding: 20px;
+  /* font-family, font-size removidos */
+}
+
+.template-compact .yoopta-editor h1 {
+  /* font-size, font-weight, color, margin-bottom, text-align removidos */
+}
+
+.template-compact .yoopta-editor h2 {
+  /* font-size, font-weight, color, margin-top, margin-bottom, background-color, padding removidos */
+}
+
+.template-compact .yoopta-editor h3 {
+  /* font-size, font-weight, color, margin-top, margin-bottom removidos */
+}
+
+.template-compact .yoopta-editor p {
+  /* margin-bottom, line-height, font-size removidos */
+}
+
+.template-compact .yoopta-editor ul {
+  /* margin-left, margin-bottom removidos */
+}
+
+.template-compact .yoopta-editor li {
+  /* margin-bottom, position, line-height, font-size removidos */
+}
+
+.template-compact .yoopta-editor li::before {
+  /* Regra removida */
+}
+
+/* Template Contemporâneo com Foto */
+.template-contemporary-photo .yoopta-editor h1 {
+  /* font-size, color removidos */
+}
+
+.template-contemporary-photo .yoopta-editor h2 {
+  /* font-size, color, border-bottom removidos */
+}
+
+.template-contemporary-photo .yoopta-editor p[data-element-id="idPlaceholderFoto"] {
+  /* Estilos de posicionamento/placeholder mantidos */
+  color: #9ca3af;
+  font-style: italic;
+  text-align: right;
+  font-size: 0.8rem;
+  margin-top: -2.5rem;
+  margin-bottom: 1rem;
+}
+
+/* Template Acadêmico Elegante */
+.template-academic-elegant .yoopta-editor {
+  /* font-family removido */
+}
+
+.template-academic-elegant .yoopta-editor h1 {
+  /* font-size, text-align, border-bottom removidos */
+}
+
+.template-academic-elegant .yoopta-editor h2 {
+  /* font-size, text-transform, letter-spacing, color removidos */
+}
+
+.template-academic-elegant .yoopta-editor p {
+  /* font-size, line-height removidos */
+}
+
+/* Template Infográfico Criativo */
+.template-infographic-creative .yoopta-editor h1 {
+  /* color removido */
+}
+
+.template-infographic-creative .yoopta-editor h2 {
+  /* color, background-color, padding, display removidos */
+}
+
+.template-infographic-creative .yoopta-editor p[data-element-id^="idHabilidade"] {
+  /* Mantido para estilo específico de 'skill' */
+  font-family: monospace;
+  background-color: #f3f4f6;
+  padding: 0.2rem 0.4rem;
+  margin-bottom: 0.3rem;
+  border-radius: 4px;
+}
+
+/* --- MAIS NOVOS ESTILOS --- */
+
+/* Template Tech Moderno */
+.template-tech-modern .yoopta-editor {
+  /* font-family removido */
+}
+
+.template-tech-modern .yoopta-editor h1 {
+  /* color, font-size removidos */
+}
+
+.template-tech-modern .yoopta-editor h2 {
+  /* color, font-size, font-weight, border-bottom removidos */
+}
+
+.template-tech-modern .yoopta-editor p {
+  /* font-size removido */
+}
+
+.template-tech-modern .yoopta-editor p[data-element-id="idStack"] {
+  /* Estilo específico mantido */
+  background-color: #f1f5f9;
+  padding: 0.5rem;
+  border-left: 3px solid #0ea5e9;
+}
+
+/* Template Portfólio Visual */
+.template-visual-portfolio .yoopta-editor {
+  /* Mantido para layout */
+  position: relative;
+  padding-left: 120px;
+}
+
+.template-visual-portfolio .yoopta-editor p[data-element-id="idPlaceholderFotoLateral"] {
+  /* Mantido para layout */
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  width: 80px;
+  height: 80px;
+  background: #e2e8f0;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.7rem;
+  color: #64748b;
+  text-align: center;
+}
+
+.template-visual-portfolio .yoopta-editor h1 {
+  /* color, font-size removidos */
+}
+
+.template-visual-portfolio .yoopta-editor h2 {
+  /* color, font-size removidos */
+}
+
+/* Template Executivo Ousado */
+.template-bold-executive .yoopta-editor h1 {
+  /* font-family, font-size, color, text-transform, letter-spacing, border-bottom removidos */
+}
+
+.template-bold-executive .yoopta-editor p[data-element-id="idPlaceholderFotoTopo"] {
+  /* Mantido para layout */
+  float: right;
+  width: 90px;
+  height: 90px;
+  background: #f3f4f6;
+  border: 2px solid #dc2626;
+  /* Estilos de placeholder */
+}
+
+.template-bold-executive .yoopta-editor h2 {
+  /* color, font-size, text-transform, font-weight, margin-top removidos */
+}
+
+/* Template Minimalista Clean */
+.template-clean-minimalist .yoopta-editor {
+  /* Mantido para layout */
+  /* font-family removido */
+  max-width: 750px;
+  margin: auto;
+  padding: 40px;
+}
+
+.template-clean-minimalist .yoopta-editor h1 {
+  /* font-size, font-weight, text-align, margin-bottom removidos */
+}
+
+.template-clean-minimalist .yoopta-editor p {
+  /* font-size, color, text-align removidos */
+}
+
+.template-clean-minimalist .yoopta-editor .yoopta-divider {
+  /* Estilos específicos para o divider removidos (devem vir do Yoopta) */
+}
+
+.template-clean-minimalist .yoopta-editor h2 {
+  /* font-size, font-weight, letter-spacing, text-transform, color, margin-top removidos */
+}
+
+/* Template Duas Colunas */
+.template-two-column .yoopta-editor {
+  /* Mantido para layout flex */
+  display: flex;
+  gap: 30px;
+}
+
+.template-two-column .editor-container>div {
+  /* Mantido para layout flex */
+  flex: 1;
+}
+
+.template-two-column p[data-element-id="idColunaEsquerda"],
+.template-two-column p[data-element-id="idPlaceholderFotoColuna"] {
+  /* Mantido para simulação de coluna */
+  flex-basis: 30%;
+  background-color: #f9fafb;
+  padding: 15px;
+  font-style: italic;
+  color: gray;
+  order: -1;
+}
+
+.template-two-column h1,
+.template-two-column h2,
+.template-two-column p:not([data-element-id^="idColuna"]):not([data-element-id^="idPlaceholder"]) {
+  /* Mantido para simulação de coluna */
+  flex-basis: 70%;
+}
+
+/* Template Foco na Timeline */
+.template-timeline-focused .yoopta-editor h2 {
+  /* text-align, color removidos */
+}
+
+.template-timeline-focused .yoopta-editor h3[data-element-id^="idTimelineItem"] {
+  /* margin-top, position, padding-left, font-size, color removidos */
+}
+
+.template-timeline-focused .yoopta-editor h3[data-element-id^="idTimelineItem"]::before {
+  /* Regra removida */
+}
+
+.template-timeline-focused .yoopta-editor [data-element-id^="idTimelineDesc"] {
+  /* margin-left, border-left, padding-left, padding-bottom removidos */
+}
