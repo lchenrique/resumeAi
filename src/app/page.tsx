@@ -2,54 +2,122 @@
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable";
 import { Editor } from "../components/editor";
 import { useState, useEffect } from "react";
-import { YooptaContentValue } from "@yoopta/editor";
+import { YooptaContentValue, YooptaBlockData } from "@yoopta/editor";
 import TemplateManager from "../components/editor/template-manager";
-import { getTemplateById } from "../components/editor/initial";
+import { getTemplateById, ResumeTemplate } from "../components/editor/initial";
 import { Layout } from "lucide-react";
-import AIChatPanel from "../components/ai/AIChatPanel";
+import AIChatPanel, { ResumeEditCommand, AddCommand, UpdateCommand, DeleteCommand, MoveCommand } from "../components/ai/AIChatPanel";
 import { ModeToggle } from "@/components/theme-toggle";
+import useTemplate from "@/hooks/use-template";
+
+// Helper Typeguard for YooptaBlockData
+function isYooptaBlockData(block: any): block is YooptaBlockData {
+  return block &&
+         typeof block === 'object' &&
+         typeof block.id === 'string' &&
+         typeof block.type === 'string' &&
+         typeof block.meta === 'object' &&
+         block.meta !== null &&
+         typeof block.meta.order === 'number' &&
+         Array.isArray(block.value);
+}
 
 export default function Home() {
-  const [selectedTemplateId, setSelectedTemplateId] = useState<string>("basic-template");
+  const { selectedTemplate, setSelectedTemplate } = useTemplate();
   const [showTemplates, setShowTemplates] = useState(false);
-  const [resumeContent, setResumeContent] = useState<YooptaContentValue | undefined>();
+  const [resumeContent, setResumeContent] = useState<YooptaContentValue | undefined>(selectedTemplate?.content);
 
-  useEffect(() => {
-    const initialTemplate = getTemplateById(selectedTemplateId);
-    setResumeContent(initialTemplate?.content);
-  }, [selectedTemplateId]);
-
-  const handleSelectTemplate = (templateId: string) => {
-    setSelectedTemplateId(templateId);
+  const handleSelectTemplate = (template: ResumeTemplate) => {
+    setSelectedTemplate(template);
+    setResumeContent(template.content);
   };
 
   const handleContentChange = (content: YooptaContentValue | undefined) => {
     setResumeContent(content);
   };
 
-  const handleJsonUpdate = (newContent: YooptaContentValue) => {
-    console.log("Recebendo JSON da IA para atualizar o editor:", newContent);
+  const handleApplyCommands = (commands: ResumeEditCommand[]) => {
+    if (!resumeContent) {
+      console.error("Tentativa de aplicar comandos sem resumeContent definido.");
+      return;
+    }
 
-    console.log('resumeContent', resumeContent);  
+    console.log("Aplicando comandos recebidos da IA:", commands);
 
-      if (resumeContent) {
-    
-        setResumeContent(undefined);
-        setTimeout(() => {
-          setResumeContent(newContent);
-        }, 100);
-      }
+    let updatedContent = JSON.parse(JSON.stringify(resumeContent));
 
+    try {
+      commands.forEach(command => {
+        console.log(`Processando comando: ${command.action}`);
+        switch (command.action) {
+          case 'add': {
+            const addCmd = command as AddCommand;
+            const newBlockId = addCmd.block_data.id;
+            if (!updatedContent[newBlockId]) {
+              const highestOrder: number = Object.values(updatedContent).reduce((max: number, block: unknown) => {
+                if (isYooptaBlockData(block)) {
+                  return Math.max(max, block.meta.order);
+                }
+                return max;
+              }, -1);
+              addCmd.block_data.meta.order = addCmd.new_order ?? highestOrder + 1;
+              updatedContent[newBlockId] = addCmd.block_data;
+              console.log(`Bloco adicionado: ${newBlockId}`, addCmd.block_data);
+            } else {
+              console.warn(`Bloco com id ${newBlockId} já existe. Comando 'add' ignorado.`);
+            }
+            break;
+          }
+          case 'update': {
+            const updateCmd = command as UpdateCommand;
+            if (updatedContent[updateCmd.block_id]) {
+              updatedContent[updateCmd.block_id].value = updateCmd.new_value;
+              console.log(`Bloco atualizado: ${updateCmd.block_id}`, updateCmd.new_value);
+            } else {
+              console.warn(`Bloco com id ${updateCmd.block_id} não encontrado para 'update'.`);
+            }
+            break;
+          }
+          case 'delete': {
+            const deleteCmd = command as DeleteCommand;
+            if (updatedContent[deleteCmd.block_id]) {
+              delete updatedContent[deleteCmd.block_id];
+              console.log(`Bloco deletado: ${deleteCmd.block_id}`);
+            } else {
+              console.warn(`Bloco com id ${deleteCmd.block_id} não encontrado para 'delete'.`);
+            }
+            break;
+          }
+          case 'move': {
+            const moveCmd = command as MoveCommand;
+            if (updatedContent[moveCmd.block_id]) {
+              updatedContent[moveCmd.block_id].meta.order = moveCmd.new_order;
+              console.log(`Ordem do bloco ${moveCmd.block_id} atualizada para ${moveCmd.new_order}. Reordenação completa pode ser necessária.`);
+            } else {
+              console.warn(`Bloco com id ${moveCmd.block_id} não encontrado para 'move'.`);
+            }
+            break;
+          }
+          default:
+            console.warn("Comando desconhecido ou inválido:", command);
+        }
+      });
+
+      setResumeContent(updatedContent);
+      console.log("Conteúdo do resumo atualizado após aplicar comandos.");
+
+    } catch (error) {
+      console.error("Erro ao processar comandos de edição:", error);
+    }
   };
 
   return (
     <ResizablePanelGroup direction="horizontal" className="h-screen">
       <ResizablePanel defaultSize={25} maxSize={40} minSize={20}>
-     <ModeToggle  />
         <div className="p-4 h-[100vh] border-r">
           <AIChatPanel 
             resumeContent={resumeContent || {}} 
-            onJsonUpdate={handleJsonUpdate}
+            onApplyCommands={handleApplyCommands}
           />
         </div>
       </ResizablePanel>
@@ -60,7 +128,7 @@ export default function Home() {
             <div className="w-[300px] h-full border-r bg-background flex-shrink-0">
               <TemplateManager
                 onSelectTemplate={handleSelectTemplate}
-                selectedTemplateId={selectedTemplateId}
+                selectedTemplate={selectedTemplate}
               />
             </div>
           )}
@@ -75,7 +143,7 @@ export default function Home() {
                 <span>{showTemplates ? 'Fechar Modelos' : 'Abrir Modelos'}</span>
               </button>
               <div className="text-sm text-gray-600">
-                Modelo atual: <span className="font-medium text-gray-800">{getTemplateById(selectedTemplateId)?.name || 'Básico'}</span>
+                Modelo atual: <span className="font-medium text-gray-800">{selectedTemplate.name}</span>
               </div>
             </div>
 
@@ -84,12 +152,12 @@ export default function Home() {
                 <div className="absolute inset-0 border border-gray-200 pointer-events-none"></div>
                 <div className="absolute inset-[2mm] border border-gray-100 pointer-events-none"></div>
 
-                <div className="p-6 md:p-10">
+                <div className="p-6 md:p-10 h-[29.7cm] w-[21cm]">
                   <Editor 
-                    selectedTemplate={selectedTemplateId} 
-                    onChangeTemplate={setSelectedTemplateId} 
+                    selectedTemplate={selectedTemplate} 
                     onContentChange={handleContentChange} 
                     resumeContent={resumeContent}
+                    key={JSON.stringify(resumeContent)}
                   />
                 </div>
               </div>

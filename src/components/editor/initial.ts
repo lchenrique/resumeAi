@@ -1,4 +1,3 @@
-import { YooptaContentValue } from '@yoopta/editor';
 import { v4 as uuidv4 } from 'uuid';
 
 export interface ResumeTemplate {
@@ -8,29 +7,30 @@ export interface ResumeTemplate {
   thumbnail?: string;
   content: YooptaContentValue;
   hasPhoto?: boolean;
+  className: string;
+  bgImage?: string;
+  bgColor?: string;
+  borderRadius?: {
+    topLeft: number;
+    topRight: number;
+    bottomLeft: number;
+    bottomRight: number;
+  };
+  sidebarSize?: number;
 }
 
 // Importamos os templates do arquivo templates.ts
 import { 
   BASIC_TEMPLATE, 
-  PROFESSIONAL_TEMPLATE,
-  CREATIVE_TEMPLATE,
-  CLASSIC_TEMPLATE,
-  ELEGANT_TEMPLATE,
-  EXECUTIVE_TEMPLATE,
-  CONTEMPORARY_PHOTO_TEMPLATE,
-  BASIC_TEMPLATE_CONTENT 
+  MODERN_SIDEBAR_TEMPLATE,
+  YooptaContentValue,
 } from './templates';
+import { BASIC_TEMPLATE_CONTENT } from './templates/content/basic';
 
 // Coleção de todos os templates disponíveis
 export const RESUME_TEMPLATES: ResumeTemplate[] = [
   BASIC_TEMPLATE,
-  PROFESSIONAL_TEMPLATE,
-  CREATIVE_TEMPLATE,
-  CLASSIC_TEMPLATE,
-  ELEGANT_TEMPLATE,
-  EXECUTIVE_TEMPLATE,
-  CONTEMPORARY_PHOTO_TEMPLATE,
+  MODERN_SIDEBAR_TEMPLATE,
 ];
 
 // Exporta o template padrão para manter compatibilidade com o código existente

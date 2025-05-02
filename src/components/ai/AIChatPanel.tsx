@@ -3,18 +3,68 @@
 import React, { useState, useRef, useEffect } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
-import { YooptaContentValue } from '@yoopta/editor';
-import { Bot, Sparkles, Send, MoreHorizontal, Mic, Globe, Upload, Lightbulb, Search } from 'lucide-react';
+import { YooptaContentValue, YooptaBlockData } from '@yoopta/editor';
+import { Bot, Sparkles, Send, MoreHorizontal, Mic, Globe, Upload, Lightbulb, Search, Loader2 } from 'lucide-react';
 import { Textarea } from '../ui/textarea';
 
-// --- Marcadores (idênticos ao prompt) ---
-const JSON_START_MARKER = '\n\n[[JSON_RESUME_START]]\n';
-const JSON_END_MARKER = '\n[[JSON_RESUME_END]]';
-const JSON_PLACEHOLDER = '\n\n*-- Gerando sugestão estruturada... --*\n';
-const JSON_READY_TEXT = '\n\n*Sugestão pronta para aplicar.* \n';
-const JSON_ERROR_TEXT = '\n\n*Erro ao processar sugestão estruturada. Tente novamente ou reformule o pedido.* \n';
+// Marcadores e textos para os COMANDOS JSON
+const COMMANDS_START_MARKER = '[[COMMANDS_START]]';
+const COMMANDS_END_MARKER = '[[COMMANDS_END]]';
+// Textos de status como strings simples
+const COMMANDS_PLACEHOLDER_TEXT = '\n\n*-- Gerando comandos de edição... --*\n';
+const COMMANDS_READY_TEXT = '\n\n*Comandos prontos para aplicar.*\n';
+const COMMANDS_ERROR_TEXT = '\n\n*Erro ao processar comandos de edição.*\n';
 
-// --- Função auxiliar para validar YooptaContentValue ---
+// Interface para os Comandos de Edição
+type BaseCommand = { action: 'add' | 'update' | 'delete' | 'move'; };
+export type AddCommand = BaseCommand & { action: 'add'; new_order: number; block_data: YooptaBlockData; };
+export type UpdateCommand = BaseCommand & { action: 'update'; block_id: string; new_value: YooptaContentValue[string]['value']; }; // new_value é o array value
+export type DeleteCommand = BaseCommand & { action: 'delete'; block_id: string; };
+export type MoveCommand = BaseCommand & { action: 'move'; block_id: string; new_order: number; };
+export type ResumeEditCommand = AddCommand | UpdateCommand | DeleteCommand | MoveCommand;
+
+// --- Função auxiliar para validar o ARRAY DE COMANDOS JSON ---
+const isValidCommandArray = (json: any): json is ResumeEditCommand[] => {
+  if (!Array.isArray(json)) {
+    console.warn('isValidCommandArray: Falhou - Não é um array.');
+    return false;
+  }
+  if (json.length === 0) {
+    console.warn('isValidCommandArray: Falhou - Array está vazio.');
+    // Permitir array vazio? Depende. Por enquanto, vamos exigir pelo menos um comando.
+    return false;
+  }
+
+  // Validar cada comando no array
+  for (const command of json) {
+    if (!command || typeof command !== 'object') {
+      console.warn('isValidCommandArray: Falhou - Item no array não é um objeto:', command);
+      return false;
+    }
+    const action = command.action;
+    if (!action || !['add', 'update', 'delete', 'move'].includes(action)) {
+      console.warn('isValidCommandArray: Falhou - Ação inválida ou ausente:', command);
+      return false;
+    }
+    // Adicionar validações mais específicas para cada tipo de ação (block_id, new_order, etc.)
+    // Exemplo simples:
+    if ((action === 'update' || action === 'delete' || action === 'move') && typeof command.block_id !== 'string') {
+      console.warn(`isValidCommandArray: Falhou - Falta block_id para ação ${action}:`, command);
+      return false;
+    }
+    if ((action === 'add' || action === 'move') && typeof command.new_order !== 'number') {
+       console.warn(`isValidCommandArray: Falhou - Falta new_order para ação ${action}:`, command);
+       return false;
+    }
+    // ... (poderíamos adicionar validação para block_data em 'add' e new_value em 'update' aqui)
+  }
+
+  console.log('isValidCommandArray: Passou - Estrutura do array de comandos parece válida.');
+  return true;
+};
+
+// --- Função auxiliar para validar YooptaContentValue (Manter se necessário em outro lugar, ou remover) ---
+/*
 const isValidYooptaContent = (json: any): json is YooptaContentValue => {
   if (!json || typeof json !== 'object' || Array.isArray(json)) {
     console.warn('isValidYooptaContent: Falhou - Não é um objeto válido.');
@@ -54,18 +104,19 @@ const isValidYooptaContent = (json: any): json is YooptaContentValue => {
   console.log('isValidYooptaContent: Passou - Estrutura parece válida.');
   return true; // Se chegou até aqui, consideramos válido
 };
+*/
 
-// --- Função para limpar JSONs antigos do estado ---
-const cleanupProposedJsons = (
-  proposedJsons: Record<string, YooptaContentValue>,
+// --- Função para limpar JSONs antigos do estado (Adaptar para Comandos) ---
+const cleanupProposedCommands = (
+  proposedCommands: Record<string, ResumeEditCommand[]>,
   maxAgeMs: number = 30 * 60 * 1000 // 30 minutos
-): Record<string, YooptaContentValue> => {
+): Record<string, ResumeEditCommand[]> => {
   const now = Date.now();
-  const cleaned: Record<string, YooptaContentValue> = {};
-  Object.entries(proposedJsons).forEach(([msgId, json]) => {
+  const cleaned: Record<string, ResumeEditCommand[]> = {};
+  Object.entries(proposedCommands).forEach(([msgId, commands]) => {
     const msgTime = parseInt(msgId.split('-')[0], 10);
     if (now - msgTime < maxAgeMs) {
-      cleaned[msgId] = json;
+      cleaned[msgId] = commands;
     }
   });
   return cleaned;
@@ -439,15 +490,17 @@ interface Message {
 // --- Interface de Props do Componente ---
 interface AIChatPanelProps {
   resumeContent: Record<string, any>;
-  onJsonUpdate: (newContent: YooptaContentValue) => void;
+  onApplyCommands: (commands: ResumeEditCommand[]) => void;
 }
 
 // --- Componente Principal ---
-const AIChatPanel: React.FC<AIChatPanelProps> = ({ resumeContent, onJsonUpdate }) => {
+const MAX_MESSAGES = 50; // Definir um limite
+
+const AIChatPanel: React.FC<AIChatPanelProps> = ({ resumeContent, onApplyCommands }) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [proposedJsons, setProposedJsons] = useState<Record<string, YooptaContentValue>>({});
+  const [proposedCommands, setProposedCommands] = useState<Record<string, ResumeEditCommand[]>>({});
   const messagesEndRef = useRef<null | HTMLDivElement>(null);
   const [conversationId, setConversationId] = useState<string | null>(null);
   const [selectedApiModel, setSelectedApiModel] = useState<'gemini' | 'openrouter'>('openrouter');
@@ -475,15 +528,24 @@ const AIChatPanel: React.FC<AIChatPanelProps> = ({ resumeContent, onJsonUpdate }
     const aiMessageId = `${Date.now()}-ai`;
     const aiPlaceholderMessage: Message = { id: aiMessageId, text: '', sender: 'ai' };
 
-    setMessages((prev) => [...prev, newUserMessage, aiPlaceholderMessage]);
-    setIsLoading(true);
+    // Adicionar novas mensagens e limitar o histórico
+    setMessages((prev) => {
+       const updatedMessages = [...prev, newUserMessage, aiPlaceholderMessage];
+       if (updatedMessages.length > MAX_MESSAGES) {
+           // Remove o número excedente de mensagens do início (as mais antigas)
+           return updatedMessages.slice(updatedMessages.length - MAX_MESSAGES);
+       }
+       return updatedMessages;
+    });
 
+    setIsLoading(true);
     let accumulatedText = '';
-    let accumulatedJsonString = '';
-    let isReceivingJson = false;
-    let jsonParseError = false;
-    let jsonEndMarkerFound = false;
+    let accumulatedCommandString = '';
+    let isReceivingCommands = false;
+    let commandParseError = false;
+    let commandEndMarkerFound = false;
     let buffer = '';
+    let currentAiTextMessage = '';
 
     try {
       const apiEndpoint = selectedApiModel === 'gemini' ? '/api/gemini-chat' : '/api/openrouter-chat';
@@ -526,74 +588,69 @@ const AIChatPanel: React.FC<AIChatPanelProps> = ({ resumeContent, onJsonUpdate }
           const dataString = line.slice(5).trim();
 
           if (dataString === '[DONE]') {
-            if (isReceivingJson && !jsonParseError && accumulatedJsonString.trim()) {
+            if (isReceivingCommands && !commandParseError && accumulatedCommandString.trim()) {
               try {
-                const parsedJson = JSON.parse(accumulatedJsonString);
-                if (isValidYooptaContent(parsedJson)) {
-                  setProposedJsons((prev) => ({
-                    ...cleanupProposedJsons(prev),
-                    [aiMessageId]: parsedJson,
+                // Limpar string de comandos antes de parsear
+                const finalCleanedCommands = cleanupJsonString(accumulatedCommandString);
+                const parsedCommands = JSON.parse(finalCleanedCommands);
+
+                if (isValidCommandArray(parsedCommands)) {
+                  setProposedCommands((prev) => ({
+                    ...cleanupProposedCommands(prev),
+                    [aiMessageId]: parsedCommands,
                   }));
-                  accumulatedText = accumulatedText.replace(JSON_PLACEHOLDER, JSON_READY_TEXT);
+                  // Atualiza a mensagem final com o texto de sucesso
+                  setMessages((prev) =>
+                    prev.map((msg) =>
+                      msg.id === aiMessageId ? { ...msg, text: currentAiTextMessage + COMMANDS_READY_TEXT } : msg
+                    )
+                  );
                 } else {
-                  jsonParseError = true;
-                  accumulatedText = accumulatedText.replace(
-                    JSON_PLACEHOLDER,
-                    JSON_ERROR_TEXT + '*Formato de currículo inválido.*\n'
+                  commandParseError = true;
+                  console.warn('Array de comandos parseado, mas formato inválido.', parsedCommands);
+                  // Atualiza a mensagem final com o texto de erro de formato
+                  setMessages((prev) =>
+                    prev.map((msg) =>
+                      msg.id === aiMessageId ? { ...msg, text: currentAiTextMessage + COMMANDS_ERROR_TEXT + '*Formato de comandos inválido.*\n' } : msg
+                    )
                   );
                 }
               } catch (e) {
-                console.error('Erro ao parsear JSON:', e);
-                
-                // Extrair posição do erro, se disponível
+                console.error('Erro ao parsear Array de Comandos no [DONE]:', e);
                 const errorMessage = e instanceof Error ? e.message : 'Erro desconhecido';
                 const positionMatch = errorMessage.match(/position (\d+)/);
                 const errorPosition = positionMatch ? parseInt(positionMatch[1], 10) : null;
-                
                 if (errorPosition !== null) {
-                  // Debug detalhado do JSON na posição do erro
-                  console.log(`Erro de parsing na posição ${errorPosition}, analisando...`);
-                  debugJsonPosition(accumulatedJsonString, errorPosition);
+                  debugJsonPosition(accumulatedCommandString, errorPosition);
                 } else {
-                  // Se não conseguir extrair a posição, faz log do JSON completo
-                  console.log('JSON bruto recebido com erro (não foi possível determinar posição):');
-                  console.log(accumulatedJsonString);
+                  console.log('Array de Comandos bruto no [DONE] (sem posição):', accumulatedCommandString);
                 }
-                
-                // Tentar limpar o JSON com método alternativo
-                try {
-                  // Usar a função de limpeza especializada
-                  const cleanedJson = cleanupJsonString(accumulatedJsonString);
-                  
-                  console.log('Tentando parser com JSON limpo:', cleanedJson);
-                  const parsedJsonAlt = JSON.parse(cleanedJson);
-                  console.log('JSON limpo:', parsedJsonAlt);
-                  
-                  if (isValidYooptaContent(parsedJsonAlt)) {
-                    console.log('Parsing alternativo bem-sucedido!');
-                    setProposedJsons((prev) => ({
-                      ...cleanupProposedJsons(prev),
-                      [aiMessageId]: parsedJsonAlt,
-                    }));
-                    accumulatedText = accumulatedText.replace(JSON_PLACEHOLDER, JSON_READY_TEXT);
-                  } else {
-                    console.log("JSON limpo que falhou no parse (formato inválido):", cleanedJson)
-                    throw new Error('JSON limpo tem formato inválido');
-                  }
-                } catch (cleanError) {
-                  console.error('Também falhou ao tentar limpar e parsear o JSON:', cleanError);
-                  jsonParseError = true;
-                  accumulatedText = accumulatedText.replace(
-                    JSON_PLACEHOLDER,
-                    JSON_ERROR_TEXT + `*JSON inválido: ${errorMessage}*\n`
-                  );
-                }
+                commandParseError = true;
+                // Atualiza a mensagem final com o texto de erro de parse
+                 setMessages((prev) =>
+                   prev.map((msg) =>
+                     msg.id === aiMessageId ? { ...msg, text: currentAiTextMessage + COMMANDS_ERROR_TEXT + `*Comandos inválidos (erro de sintaxe).*\n` } : msg
+                   )
+                 );
               }
+            } else {
+                 // Se não estava recebendo comandos ou já houve erro, apenas finaliza com o texto acumulado
+                 // ou o placeholder/texto de erro já definido
+                 setMessages((prev) =>
+                    prev.map((msg) => {
+                        if (msg.id === aiMessageId) {
+                            // Se ainda tem o texto vazio do placeholder inicial, usa o texto acumulado + erro (se houver)
+                            if (msg.text === '') { 
+                                return { ...msg, text: currentAiTextMessage + (commandParseError ? COMMANDS_ERROR_TEXT : '') };
+                            }
+                            // Se já tinha texto (incluindo erro/sucesso vindo dos catches), mantém
+                            return msg;
+                        }
+                        return msg;
+                    })
+                 );
             }
-            setMessages((prev) =>
-              prev.map((msg) => (msg.id === aiMessageId ? { ...msg, text: accumulatedText } : msg))
-            );
-            break;
+            break; // Sai do loop while
           }
 
           try {
@@ -606,62 +663,84 @@ const AIChatPanel: React.FC<AIChatPanelProps> = ({ resumeContent, onJsonUpdate }
 
             if (!deltaContent) continue;
 
-            if (!isReceivingJson) {
+            if (!isReceivingCommands) {
               const combined = accumulatedText + deltaContent;
-              const markerIndex = combined.indexOf(JSON_START_MARKER);
+              // Procurar pelo marcador de COMANDOS
+              const markerIndex = combined.indexOf(COMMANDS_START_MARKER);
 
               if (markerIndex !== -1) {
-                isReceivingJson = true;
-                accumulatedText = combined.slice(0, markerIndex) + JSON_PLACEHOLDER;
-                accumulatedJsonString = combined.slice(markerIndex + JSON_START_MARKER.length);
+                isReceivingCommands = true;
+                // Armazena o texto ANTES do marcador
+                currentAiTextMessage = combined.slice(0, markerIndex);
+                accumulatedCommandString = combined.slice(markerIndex + COMMANDS_START_MARKER.length);
+                // Atualiza a mensagem imediatamente com o texto + placeholder
+                setMessages((prev) =>
+                  prev.map((msg) =>
+                    msg.id === aiMessageId ? { ...msg, text: currentAiTextMessage + COMMANDS_PLACEHOLDER_TEXT } : msg 
+                  )
+                );
               } else {
                 accumulatedText += deltaContent;
+                currentAiTextMessage = accumulatedText; // Atualiza texto corrente
+                 // Atualiza a mensagem com o texto normal
+                setMessages((prev) =>
+                  prev.map((msg) =>
+                    msg.id === aiMessageId ? { ...msg, text: accumulatedText } : msg
+                  )
+                );
               }
             } else {
-              const endMarkerIndex = (accumulatedJsonString + deltaContent).indexOf(JSON_END_MARKER);
+              // Estamos recebendo COMANDOS
+              const endMarkerIndex = (accumulatedCommandString + deltaContent).indexOf(COMMANDS_END_MARKER);
               if (endMarkerIndex === -1) {
-                accumulatedJsonString += deltaContent;
+                accumulatedCommandString += deltaContent;
               } else {
-                // Extrai APENAS a parte do JSON deste chunk
-                const jsonPart = deltaContent.slice(0, endMarkerIndex);
-                accumulatedJsonString += jsonPart;
-                jsonEndMarkerFound = true;
-                isReceivingJson = false; // JSON terminou
+                // Extrai APENAS a parte dos comandos deste chunk
+                const commandPart = deltaContent.slice(0, endMarkerIndex);
+                accumulatedCommandString += commandPart;
+                commandEndMarkerFound = true;
+                isReceivingCommands = false; // Comandos terminaram
                 
-                console.log('>>> JSON_END_MARKER encontrado. Iniciando tentativa de parse.');
-                let finalJsonToParse = accumulatedJsonString; // Copiar para não modificar o acumulador original ainda
-                accumulatedJsonString = ''; // Limpar acumulador JSON para próxima mensagem
+                console.log('>>> COMMANDS_END_MARKER encontrado. Iniciando tentativa de parse.');
+                let finalCommandsToParse = accumulatedCommandString;
+                accumulatedCommandString = '';
 
                 // 1. Tentar limpar ANTES de parsear
                 try {
-                  console.log('Limpando JSON final antes do parse...');
-                  finalJsonToParse = cleanupJsonString(finalJsonToParse);
+                  console.log('Limpando string de comandos final antes do parse...');
+                  finalCommandsToParse = cleanupJsonString(finalCommandsToParse);
                 } catch (cleanError) {
-                  console.error('Erro durante a limpeza proativa do JSON:', cleanError);
-                  // Continuar mesmo assim, talvez o parse funcione ou falhe e caia no catch abaixo
+                  console.error('Erro durante a limpeza proativa da string de comandos:', cleanError);
                 }
 
                 try {
-                  console.log('Tentando JSON.parse no JSON final (limpo?):', finalJsonToParse.substring(0, 100) + '...');
-                  const parsedJson = JSON.parse(finalJsonToParse);
+                  console.log('Tentando JSON.parse na string de comandos final (limpa?):', finalCommandsToParse.substring(0, 100) + '...');
+                  const parsedCommands = JSON.parse(finalCommandsToParse);
                   
-                  if (isValidYooptaContent(parsedJson)) {
-                    console.log('<<< Parse bem-sucedido após JSON_END_MARKER!');
-                    setProposedJsons((prev) => ({
-                      ...cleanupProposedJsons(prev),
-                      [aiMessageId]: parsedJson, // Usar o JSON parseado
+                  if (isValidCommandArray(parsedCommands)) {
+                    console.log('<<< Parse de comandos bem-sucedido após COMMANDS_END_MARKER!');
+                    setProposedCommands((prev) => ({
+                      ...cleanupProposedCommands(prev),
+                      [aiMessageId]: parsedCommands,
                     }));
-                    accumulatedText = accumulatedText.replace(JSON_PLACEHOLDER, JSON_READY_TEXT);
+                    // Atualiza a mensagem com o texto de sucesso APÓS o texto original
+                    setMessages((prev) =>
+                      prev.map((msg) =>
+                        msg.id === aiMessageId ? { ...msg, text: currentAiTextMessage + COMMANDS_READY_TEXT } : msg
+                      )
+                    );
                   } else {
-                    console.warn('<<< Parse funcionou, mas o conteúdo Yoopta é inválido.');
-                    jsonParseError = true;
-                    accumulatedText = accumulatedText.replace(
-                      JSON_PLACEHOLDER,
-                      JSON_ERROR_TEXT + '*Formato de currículo inválido.*\n'
+                    console.warn('<<< Parse de comandos funcionou, mas o array de comandos é inválido.');
+                    commandParseError = true;
+                    // Atualiza a mensagem com o texto de erro de formato APÓS o texto original
+                    setMessages((prev) =>
+                      prev.map((msg) =>
+                        msg.id === aiMessageId ? { ...msg, text: currentAiTextMessage + COMMANDS_ERROR_TEXT + '*Formato de comandos inválido.*\n' } : msg
+                      )
                     );
                   }
                 } catch (e) {
-                  console.error('<<< Erro ao parsear JSON após JSON_END_MARKER:', e);
+                  console.error('<<< Erro ao parsear string de comandos após COMMANDS_END_MARKER:', e);
                   
                   // Extrair posição do erro, se disponível
                   const errorMessage = e instanceof Error ? e.message : 'Erro desconhecido';
@@ -670,27 +749,28 @@ const AIChatPanel: React.FC<AIChatPanelProps> = ({ resumeContent, onJsonUpdate }
                   
                   if (errorPosition !== null) {
                     // Debug detalhado do JSON na posição do erro
-                    console.log(`   (Debug) Erro de parsing na posição ${errorPosition}, analisando JSON que falhou...`);
-                    debugJsonPosition(finalJsonToParse, errorPosition); // Usar a string que falhou
+                    console.log(`   (Debug) Erro de parsing na posição ${errorPosition}, analisando string de comandos que falhou...`);
+                    debugJsonPosition(finalCommandsToParse, errorPosition);
                   } else {
-                    // Se não conseguir extrair a posição, faz log do JSON completo
-                    console.log('   (Debug) JSON que falhou no parse (posição não determinada):');
-                    console.log(finalJsonToParse);
+                    // Se não conseguir extrair a posição, faz log da string completa
+                    console.log('   (Debug) String de comandos que falhou no parse (posição não determinada):');
+                    console.log(finalCommandsToParse);
                   }
                   
-                  // Apenas reportar o erro no UI, pois a limpeza já foi tentada
-                  jsonParseError = true;
-                  accumulatedText = accumulatedText.replace(
-                    JSON_PLACEHOLDER,
-                    JSON_ERROR_TEXT + `*JSON inválido: ${errorMessage}*\n`
+                  commandParseError = true;
+                  // Atualiza a mensagem com o texto de erro de parse APÓS o texto original
+                  setMessages((prev) =>
+                    prev.map((msg) =>
+                      msg.id === aiMessageId ? { ...msg, text: currentAiTextMessage + COMMANDS_ERROR_TEXT + `*Comandos inválidos (erro de sintaxe).*\n` } : msg
+                    )
                   );
                 }
               }
             }
 
-            setMessages((prev) =>
-              prev.map((msg) => (msg.id === aiMessageId ? { ...msg, text: accumulatedText } : msg))
-            );
+            // Não atualiza a mensagem aqui dentro do loop se estivermos esperando o JSON
+            // A atualização ocorre quando o marcador é encontrado ou quando o [DONE] chega
+
           } catch (e) {
             console.warn('Erro ao parsear linha SSE:', line, e);
           }
@@ -698,49 +778,59 @@ const AIChatPanel: React.FC<AIChatPanelProps> = ({ resumeContent, onJsonUpdate }
       }
 
       // Processar buffer restante
-      if (buffer.length > 0 && !isReceivingJson) {
+      if (buffer.length > 0 && !isReceivingCommands) {
         accumulatedText += buffer;
         setMessages((prev) =>
           prev.map((msg) => (msg.id === aiMessageId ? { ...msg, text: accumulatedText } : msg))
         );
       }
 
-      // Verificar JSON iniciado mas não finalizado
-      if (isReceivingJson && !jsonEndMarkerFound && accumulatedJsonString.trim()) {
-        jsonParseError = true;
-        accumulatedText = accumulatedText.replace(
-          JSON_PLACEHOLDER,
-          JSON_ERROR_TEXT + '*JSON incompleto, marcador de fim não encontrado.*\n'
-        );
+      // Verificar JSON iniciado mas não finalizado (se o [DONE] chegou antes do end marker)
+      // Esta verificação agora é feita dentro do bloco [DONE]
+      /* 
+      if (isReceivingCommands && !commandEndMarkerFound && accumulatedCommandString.trim() && !commandParseError) {
+        commandParseError = true;
         setMessages((prev) =>
-          prev.map((msg) => (msg.id === aiMessageId ? { ...msg, text: accumulatedText } : msg))
+          prev.map((msg) =>
+            msg.id === aiMessageId ? { ...msg, text: currentAiTextMessage + COMMANDS_ERROR_TEXT + '*JSON incompleto, marcador de fim não encontrado.*\n' } : msg
+          )
         );
-      }
+      } 
+      */
     } catch (error: any) {
       console.error(`Falha ao enviar mensagem via ${selectedApiModel}:`, error);
-      setMessages((prev) =>
-        prev.map((msg) =>
-          msg.id === aiMessageId
-            ? { ...msg, text: `Erro ao conectar com ${selectedApiModel}: ${error.message}` }
-            : msg
-        )
-      );
+      // Adicionar mensagem de erro e limitar o histórico
+      setMessages((prev) => {
+          const errorMsg: Message = {
+              id: `${Date.now()}-error-api`,
+              text: `Erro ao conectar com ${selectedApiModel}: ${error.message}`,
+              sender: 'ai'
+          };
+          const updatedMessages = prev.map((msg) => 
+              msg.id === aiMessageId ? { ...msg, text: `Erro interno...` } : msg // Atualiza placeholder se existir
+          );
+          const finalMessages = [...updatedMessages, errorMsg];
+           if (finalMessages.length > MAX_MESSAGES) {
+              return finalMessages.slice(finalMessages.length - MAX_MESSAGES);
+          }
+          return finalMessages;
+      });
     } finally {
       setIsLoading(false);
     }
   };
 
-  // Função para aplicar sugestão de JSON
-  const handleApplySuggestion = async (messageToApply: Message) => {
-    const jsonToApply = proposedJsons[messageToApply.id];
+  // Função para aplicar os COMANDOS
+  const handleApplyCommands = async (messageToApply: Message) => {
+    const commandsToApply = proposedCommands[messageToApply.id];
 
-    if (!jsonToApply) {
-      console.warn('Nenhum JSON proposto encontrado para mensagem:', messageToApply.id);
+    if (!commandsToApply || commandsToApply.length === 0) {
+      console.warn('Nenhum comando proposto encontrado para mensagem:', messageToApply.id);
       setMessages((prev) => [
         ...prev,
         {
           id: `${Date.now()}-error`,
-          text: 'Erro: Nenhuma sugestão estruturada encontrada para aplicar.',
+          text: 'Erro: Nenhum comando de edição encontrado para aplicar.',
           sender: 'ai',
         },
       ]);
@@ -748,26 +838,26 @@ const AIChatPanel: React.FC<AIChatPanelProps> = ({ resumeContent, onJsonUpdate }
     }
 
     try {
-      onJsonUpdate(jsonToApply);
+      onApplyCommands(commandsToApply);
       setMessages((prev) =>
         prev.map((msg) =>
           msg.id === messageToApply.id
-            ? { ...msg, text: msg.text.replace(JSON_READY_TEXT, '\n\n*Sugestão aplicada!*\n') }
+            ? { ...msg, text: msg.text.replace(COMMANDS_READY_TEXT, '\n\n*Comandos aplicados!*\n') }
             : msg
         )
       );
-      setProposedJsons((prev) => {
+      setProposedCommands((prev) => {
         const newState = { ...prev };
         delete newState[messageToApply.id];
         return newState;
       });
     } catch (error) {
-      console.error('Erro ao aplicar JSON proposto:', error);
+      console.error('Erro ao aplicar comandos propostos:', error);
       setMessages((prev) => [
         ...prev,
         {
           id: `${Date.now()}-error`,
-          text: `Erro ao aplicar sugestão: ${error instanceof Error ? error.message : 'Erro desconhecido'}`,
+          text: `Erro ao aplicar comandos: ${error instanceof Error ? error.message : 'Erro desconhecido'}`,
           sender: 'ai',
         },
       ]);
@@ -805,15 +895,25 @@ const AIChatPanel: React.FC<AIChatPanelProps> = ({ resumeContent, onJsonUpdate }
                     : 'bg-card text-gray-800 border border-gray-200'
                 }`}
               >
-                <ReactMarkdown remarkPlugins={[remarkGfm]}>{msg.text}</ReactMarkdown>
+                {/* Renderiza o Markdown normal */}
+                <ReactMarkdown remarkPlugins={[remarkGfm]}>{msg.text.replace(COMMANDS_PLACEHOLDER_TEXT, '') /* Remove placeholder antes de renderizar */}</ReactMarkdown>
+                
+                {/* Renderiza o Spinner se o placeholder estiver presente */} 
+                {msg.text.includes(COMMANDS_PLACEHOLDER_TEXT) && (
+                  <div className="flex items-center justify-start gap-2 my-1 italic text-gray-500 text-sm">
+                    <Loader2 size={14} className="animate-spin" />
+                    <span>Gerando comandos de edição...</span>
+                  </div>
+                )}
               </div>
-              {msg.sender === 'ai' && proposedJsons[msg.id] && !msg.text.startsWith('Erro ao') && (
+              {/* Botão Aplicar aparece se os COMANDOS existem e a mensagem contém o texto de pronto */}
+              {msg.sender === 'ai' && proposedCommands[msg.id] && msg.text.includes(COMMANDS_READY_TEXT) && (
                 <button
-                  onClick={() => handleApplySuggestion(msg)}
+                  onClick={() => handleApplyCommands(msg)}
                   disabled={isLoading}
                   className={`flex items-center gap-1.5 text-xs px-2 py-0.5 rounded border transition-colors bg-background border-gray-200 text-gray-600 hover:bg-gray-50 hover:text-gray-800 disabled:opacity-50`}
                 >
-                  <Sparkles size={12} /> Aplicar no Currículo
+                  <Sparkles size={12} /> Aplicar Edições
                 </button>
               )}
             </div>

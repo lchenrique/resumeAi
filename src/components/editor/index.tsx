@@ -22,7 +22,8 @@ import ActionMenu, { DefaultActionMenuRender } from '@yoopta/action-menu-list';
 import Toolbar, { DefaultToolbarRender } from '@yoopta/toolbar';
 import { Bold, Italic, CodeMark, Underline, Strike, Highlight } from '@yoopta/marks';
 import TemplateManager from './template-manager';
-import { BASIC_TEMPLATE_CONTENT, PROFESSIONAL_TEMPLATE, PROFESSIONAL_TEMPLATE_CONTENT } from "./templates";
+import { BASIC_TEMPLATE_CONTENT } from "./templates/content/basic";
+import { EditorWrapper } from "./editor-wrapper";
 
 const MARKS = [Bold, Italic, CodeMark, Underline, Strike, Highlight];
 
@@ -45,13 +46,12 @@ const TOOLS = {
 };
 
 interface EditorProps {
-  selectedTemplate: string;
-  onChangeTemplate: (templateId: string) => void;
+  selectedTemplate: ResumeTemplate;
   onContentChange: (content: YooptaContentValue | undefined) => void;
   resumeContent: YooptaContentValue | undefined;
 }
 
-export function Editor({ selectedTemplate, onChangeTemplate, onContentChange, resumeContent }: EditorProps) {
+export function Editor({ selectedTemplate, onContentChange, resumeContent }: EditorProps) {
   const editor = useMemo(() => createYooptaEditor(), []);
   const editorContainerRef = useRef<HTMLDivElement>(null);
   const [exportLoading, setExportLoading] = useState<boolean>(false);
@@ -63,7 +63,7 @@ export function Editor({ selectedTemplate, onChangeTemplate, onContentChange, re
 
   // Obtém a classe CSS com base no template selecionado
   const getTemplateClassName = () => {
-    switch (selectedTemplate) {
+    switch (selectedTemplate.id) {
       case 'modern-template':
         return 'template-modern';
       case 'minimal-template':
@@ -132,12 +132,12 @@ export function Editor({ selectedTemplate, onChangeTemplate, onContentChange, re
 
   return (
     <div className="h-full">
-      {/* Área de edição principal */}
       <div 
         className={`w-full h-full overflow-auto ${getTemplateClassName()}`}
         ref={editorContainerRef}
       >
-        <div className="editor-container w-full mx-auto">
+        <div className="editor-container w-full mx-auto h-full">
+        <EditorWrapper>
           {resumeContent && (
             <YooptaEditor
               editor={editor}
@@ -149,7 +149,9 @@ export function Editor({ selectedTemplate, onChangeTemplate, onContentChange, re
               marks={MARKS}
             />
           )}
+        </EditorWrapper>
         </div>
+
       </div>
 
       <ActionMenu />

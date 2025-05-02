@@ -1,42 +1,27 @@
 import React from 'react';
 import { 
   BASIC_TEMPLATE, 
-  PROFESSIONAL_TEMPLATE,
-  CREATIVE_TEMPLATE,
-  CLASSIC_TEMPLATE,
-  ELEGANT_TEMPLATE,
-  EXECUTIVE_TEMPLATE,
-  CONTEMPORARY_PHOTO_TEMPLATE,
+  MODERN_SIDEBAR_TEMPLATE,
 } from './templates';
 import { YooptaContentValue } from '@yoopta/editor';
 import { ResumeTemplate } from './initial';
 
 interface TemplateManagerProps {
-  onSelectTemplate: (templateId: string) => void;
-  selectedTemplateId?: string;
+  onSelectTemplate: (template: ResumeTemplate) => void;
+  selectedTemplate: ResumeTemplate;
 }
 
-const TemplateManager: React.FC<TemplateManagerProps> = ({ onSelectTemplate, selectedTemplateId }) => {
+const TemplateManager: React.FC<TemplateManagerProps> = ({ onSelectTemplate, selectedTemplate }) => {
   const templateCategories = [
-    {
-      id: 'professional',
-      name: 'Profissional',
-      templates: [PROFESSIONAL_TEMPLATE, EXECUTIVE_TEMPLATE, CLASSIC_TEMPLATE]
-    },
-    {
-      id: 'creative',
-      name: 'Criativo',
-      templates: [CREATIVE_TEMPLATE, ELEGANT_TEMPLATE, CONTEMPORARY_PHOTO_TEMPLATE]
-    },
     {
       id: 'simple',
       name: 'Simples',
-      templates: [BASIC_TEMPLATE]
+      templates: [BASIC_TEMPLATE, MODERN_SIDEBAR_TEMPLATE]
     }
   ];
 
-  const handleTemplateSelect = (templateId: string) => {
-    onSelectTemplate(templateId);
+  const handleTemplateSelect = (template: ResumeTemplate) => {
+    onSelectTemplate(template);
   };
 
   return (
@@ -61,9 +46,9 @@ const TemplateManager: React.FC<TemplateManagerProps> = ({ onSelectTemplate, sel
               {category.templates.map((template) => (
                 <button
                   key={template.id}
-                  onClick={() => handleTemplateSelect(template.id)}
+                  onClick={() => handleTemplateSelect(template)}
                   className={`w-full text-left transition-all duration-150 rounded-lg overflow-hidden group focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500
-                    ${selectedTemplateId === template.id 
+                    ${selectedTemplate.id === template.id 
                       ? 'ring-2 ring-blue-500 border-transparent shadow-md' 
                       : 'border border-gray-200 hover:border-gray-300 hover:shadow-lg bg-background'
                     }`}
@@ -75,7 +60,7 @@ const TemplateManager: React.FC<TemplateManagerProps> = ({ onSelectTemplate, sel
                       </div>
                     </div>
                     
-                    {selectedTemplateId === template.id && (
+                    {selectedTemplate.id === template.id && (
                       <div className="absolute inset-0 bg-blue-600 bg-opacity-10 flex items-center justify-center pointer-events-none">
                         <div className="bg-blue-600 rounded-full p-1 shadow-md">
                           <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
