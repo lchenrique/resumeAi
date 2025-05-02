@@ -26,10 +26,12 @@ export default function Home() {
   const { selectedTemplate, setSelectedTemplate } = useTemplate();
   const [showTemplates, setShowTemplates] = useState(false);
   const [resumeContent, setResumeContent] = useState<YooptaContentValue | undefined>(selectedTemplate?.content);
+  const [editorUpdateKey, setEditorUpdateKey] = useState<number>(0);
 
   const handleSelectTemplate = (template: ResumeTemplate) => {
     setSelectedTemplate(template);
-    setResumeContent(template.content);
+    // NÃO resetar o resumeContent, apenas mudar o template selecionado
+    // setResumeContent(template.content);
   };
 
   const handleContentChange = (content: YooptaContentValue | undefined) => {
@@ -41,8 +43,6 @@ export default function Home() {
       console.error("Tentativa de aplicar comandos sem resumeContent definido.");
       return;
     }
-
-    console.log("Aplicando comandos recebidos da IA:", commands);
 
     let updatedContent = JSON.parse(JSON.stringify(resumeContent));
 
@@ -106,6 +106,9 @@ export default function Home() {
       setResumeContent(updatedContent);
       console.log("Conteúdo do resumo atualizado após aplicar comandos.");
 
+      setEditorUpdateKey(prevKey => prevKey + 1);
+      console.log("Chave do editor incrementada para forçar atualização visual.");
+
     } catch (error) {
       console.error("Erro ao processar comandos de edição:", error);
     }
@@ -148,7 +151,7 @@ export default function Home() {
             </div>
 
             <main className="flex-1 bg-card overflow-auto p-4 md:p-8">
-              <div className="relative mx-auto w-[21cm] min-h-[29.7cm] bg-background shadow-lg">
+              <div className={`relative mx-auto w-[21cm] min-h-[29.7cm] bg-background shadow-lg ${selectedTemplate?.className || ''}`}>
                 <div className="absolute inset-0 border border-gray-200 pointer-events-none"></div>
                 <div className="absolute inset-[2mm] border border-gray-100 pointer-events-none"></div>
 
@@ -157,7 +160,7 @@ export default function Home() {
                     selectedTemplate={selectedTemplate} 
                     onContentChange={handleContentChange} 
                     resumeContent={resumeContent}
-                    key={JSON.stringify(resumeContent)}
+                    key={editorUpdateKey}
                   />
                 </div>
               </div>
