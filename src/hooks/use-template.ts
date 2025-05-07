@@ -1,8 +1,6 @@
 // create a hook to get the selected template whith a zustand store
 
-import { ResumeTemplate } from '@/components/editor/initial';
-import { BASIC_TEMPLATE } from '@/components/editor/templates';
-import { YooptaContentValue } from '@yoopta/editor';
+import { BASIC_TEMPLATE, ResumeTemplate } from '@/components/editor/initial';
 import { create } from 'zustand';
 
 export interface TemplateStore {
@@ -10,7 +8,7 @@ export interface TemplateStore {
   setSelectedTemplate: (template: ResumeTemplate) => void;
 }
 const useTemplate = create<TemplateStore>((set) => ({
-  selectedTemplate: BASIC_TEMPLATE,
+  selectedTemplate: BASIC_TEMPLATE ,
   setSelectedTemplate: (template) => set({ selectedTemplate: template }),
 }));
 

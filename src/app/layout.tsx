@@ -20,11 +20,14 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <Header />
-         <div className='mt-14'>
-         {children}
-         </div>
-        </ThemeProvider>  
+          <div className='flex flex-col h-full '>
+            <Header />
+            <div className=' h-[calc(100vh-57px)] p-5 rounded-lg bg-muted/50 '>
+              {children}
+            </div>
+          </div>
+
+        </ThemeProvider>
       </body>
     </html>
   );

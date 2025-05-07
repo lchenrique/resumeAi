@@ -1,10 +1,5 @@
 import React from 'react';
-import { 
-  BASIC_TEMPLATE, 
-  MODERN_SIDEBAR_TEMPLATE,
-} from './templates';
-import { YooptaContentValue } from '@yoopta/editor';
-import { ResumeTemplate } from './initial';
+import { ResumeTemplate, BASIC_TEMPLATE, modernSidebarTemplate, profileFeatureTemplate } from './initial';
 
 interface TemplateManagerProps {
   onSelectTemplate: (template: ResumeTemplate) => void;
@@ -16,7 +11,7 @@ const TemplateManager: React.FC<TemplateManagerProps> = ({ onSelectTemplate, sel
     {
       id: 'simple',
       name: 'Simples',
-      templates: [BASIC_TEMPLATE, MODERN_SIDEBAR_TEMPLATE]
+      templates: [BASIC_TEMPLATE, modernSidebarTemplate, profileFeatureTemplate]
     }
   ];
 
@@ -76,11 +71,6 @@ const TemplateManager: React.FC<TemplateManagerProps> = ({ onSelectTemplate, sel
                       <h3 className="font-medium text-gray-800 text-sm truncate">
                         {template.name}
                       </h3>
-                      {template.hasPhoto && (
-                        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-700 flex-shrink-0">
-                          Foto
-                        </span>
-                      )}
                     </div>
                   </div>
                 </button>
