@@ -1,53 +1,120 @@
-"use client"
 import "@blocknote/core/fonts/inter.css";
-import { BlockNoteView } from "@blocknote/mantine";
-import "@blocknote/mantine/style.css";
-import { CreateLinkButton, UnnestBlockButton, FileCaptionButton, BlockTypeSelect, FormattingToolbar, FormattingToolbarController, useCreateBlockNote, FileReplaceButton, NestBlockButton, ColorStyleButton, TextAlignButton, BasicTextStyleButton, BlockNoteViewProps } from "@blocknote/react";
-import { TextColorButton } from "./toolbar/text-color";
-import { schema } from "./toolbar/text-color";
-import { ComponentProps } from "react";
-import { BlockNoteSchema } from "@blocknote/core";
+import "@blocknote/shadcn/style.css"
+import { BlockNoteView } from "@blocknote/shadcn";
+import { 
+  CreateLinkButton, 
+  UnnestBlockButton, 
+  FileCaptionButton, 
+  BlockTypeSelect, 
+  FormattingToolbar, 
+  FormattingToolbarController, 
+  useCreateBlockNote, 
+  FileReplaceButton, 
+  NestBlockButton, 
+  TextAlignButton, 
+  BasicTextStyleButton,
+  blockTypeSelectItems,
+  BlockTypeSelectItem,
+  getDefaultReactSlashMenuItems,
+  SuggestionMenuController
+} from "@blocknote/react";
+import { Color as ColorStyleSpec, TextColorButton } from "./toolbar/text-color";
 import { pt } from "@blocknote/core/locales";
+import { useTheme } from "next-themes";
+import { BlockNoteDocument } from "./type";
+import { defaultBlockSpecs, defaultStyleSpecs, filterSuggestionItems, insertOrUpdateBlock, BlockNoteSchema } from "@blocknote/core";
+import { Alert } from "./blocks/bullet-list";
+import { Info, List } from "lucide-react";
+import { CustomBulletListItem } from "./blocks/list-bullet-item";
+import { group } from "console";
+import { v4 } from "uuid";
+
+export const masterSchema = BlockNoteSchema.create({
+  styleSpecs: {
+    ...defaultStyleSpecs,
+    color: ColorStyleSpec,
+  },
+  blockSpecs: {
+    ...defaultBlockSpecs,
+    alert: Alert,
+    bulletListItem: CustomBulletListItem,
+  }
+});
+
+const insertAlert = (editor: typeof masterSchema.BlockNoteEditor) => ({
+  title: "Alert",
+  subtext: "Alert for emphasizing text",
+  onItemClick: () =>
+    insertOrUpdateBlock(editor, {
+      type: "alert",
+    }),
+  aliases: [
+    "alert",
+    "notification",
+    "emphasize",
+    "warning",
+    "error",
+    "info",
+    "success",
+  ],
+  group: "Blocos básicos",
+  icon: <Info size={18} />,
+});
+
+const insertListBulletItem = (editor: typeof masterSchema.BlockNoteEditor) => ({
+  title: "Item da lista",
+  subtext: "Item da lista para enfatizar texto",
+  onItemClick: () =>
+    insertOrUpdateBlock(editor, {
+      type: "bulletListItem",
+    }),
+  aliases: [
+    "bulletListItem",
+  ],
+  group:"Blocos básicos",
+  icon: <List size={18} />,
+});
+
 const locale = pt;
-export const Editor = ({ initialContent, level }: { initialContent?: string, level?: 1 | 2 | 3 }) => {
-  const editor = useCreateBlockNote({
+export const Editor = ({ initialContent }: { initialContent?: BlockNoteDocument | null }) => {
+  const {theme} = useTheme()
+  const editor = useCreateBlockNote({ 
     sideMenuDetection: "editor",
-    schema: schema,
+    schema: masterSchema, 
     dictionary:{
       ...locale,
-      placeholders:{
-        emptyDocument: "Digite aqui ou use '/' para opções"
-      },
-      slashMenu: {
-        searchBarPlaceholder: "Procure por comandos...",
-        noResults: "Nenhum resultado encontrado"
-      }
     },
-    initialContent: [level ? {
-      type: "heading",
-      content: initialContent,
-      props: {
-        level: level || 3
-      }
-    } : {
-      type: "paragraph",
-      content: initialContent,
-    }]
-
+    initialContent: initialContent as any
   });
 
   return <BlockNoteView 
   editor={editor} 
-  theme={"light"} 
+  theme={theme === "dark" ? "dark" : "light"} 
   style={{ flex: 1 }} 
   formattingToolbar={false}
+  slashMenu={false}
+  id={v4()}
   >
     <FormattingToolbarController
       formattingToolbar={() => {
-        return <FormattingToolbar>
+        return <FormattingToolbar
+        blockTypeSelectItems={[
+          ...blockTypeSelectItems(editor.dictionary),
+          {
+            name: "Alert",
+            type: "alert",
+            icon: Info,
+            isSelected: (block) => block.type === "alert",
+          } satisfies BlockTypeSelectItem,
+          {
+            name: "List Bullet Item",
+            type: "listBulletItem",
+            icon: List,
+            isSelected: (block) => block.type === "listBulletItem",
+          } satisfies BlockTypeSelectItem,
+        ]}
+        >
           <BlockTypeSelect key={"blockTypeSelect"} />
-
-          {/* Extra button to toggle blue text & background */}
 
           <FileCaptionButton key={"fileCaptionButton"} />
           <FileReplaceButton key={"replaceFileButton"} />
@@ -68,7 +135,6 @@ export const Editor = ({ initialContent, level }: { initialContent?: string, lev
             basicTextStyle={"strike"}
             key={"strikeStyleButton"}
           />
-          {/* Extra button to toggle code styles */}
           <BasicTextStyleButton
             key={"codeStyleButton"}
             basicTextStyle={"code"}
@@ -89,7 +155,6 @@ export const Editor = ({ initialContent, level }: { initialContent?: string, lev
 
           <TextColorButton key={"customButton"} />
 
-
           <NestBlockButton key={"nestBlockButton"} />
           <UnnestBlockButton key={"unnestBlockButton"} />
 
@@ -97,5 +162,18 @@ export const Editor = ({ initialContent, level }: { initialContent?: string, lev
         </FormattingToolbar>
       }}
     />
+      <SuggestionMenuController
+        triggerCharacter={"/"}
+        getItems={async (query) => {
+          const defaultItems = getDefaultReactSlashMenuItems(editor);
+          console.log(defaultItems)
+          const lastBasicBlockIndex = defaultItems.findLastIndex(
+            (item) => item.group === "Blocos básicos"
+          );
+          defaultItems.splice(lastBasicBlockIndex + 1, 0, insertAlert(editor));
+          defaultItems.splice(lastBasicBlockIndex + 1, 0, insertListBulletItem(editor));
+          return filterSuggestionItems(defaultItems, query);
+        }}
+      />
   </BlockNoteView>
 }

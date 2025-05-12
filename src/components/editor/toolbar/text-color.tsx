@@ -7,7 +7,11 @@ import {
 import "@blocknote/mantine/style.css";
 import { useState } from "react";
 import { ColorPicker } from "@/components/color-picker";
-import { BlockNoteSchema, defaultStyleSpecs } from "@blocknote/core";
+import { defaultBlockSpecs } from "@blocknote/core";
+import { defaultStyleSpecs } from "@blocknote/core";
+import { BlockNoteSchema } from "@blocknote/core";
+
+
 
 
 // The Font style.
@@ -23,7 +27,7 @@ export const Color = createReactStyleSpec(
   }
 );
 
-export const schema = BlockNoteSchema.create({
+export const TextSchema = BlockNoteSchema.create({
   styleSpecs: {
     ...defaultStyleSpecs,
     color: Color,
@@ -33,25 +37,10 @@ export const schema = BlockNoteSchema.create({
 
 export function TextColorButton() {
   const editor = useBlockNoteEditor<
-    typeof schema.blockSchema,
-    typeof schema.inlineContentSchema,
-    typeof schema.styleSchema
+    typeof TextSchema.blockSchema,
+    typeof TextSchema.inlineContentSchema,
+    typeof TextSchema.styleSchema
   >();
-
-
-  const Components = useComponentsContext()!;
-
-  // Tracks whether the text & background are both blue.
-  const [isSelected, setIsSelected] = useState<boolean>(
-    editor.getActiveStyles().color === "blue"
-  );
-
-  // Updates state on content or selection change.
-  useEditorContentOrSelectionChange(() => {
-    setIsSelected(
-      editor.getActiveStyles().color === "blue"
-    );
-  }, editor);
 
 
   return (

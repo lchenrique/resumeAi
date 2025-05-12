@@ -9,21 +9,13 @@ import { forwardRef, useState, useEffect } from "react";
 import { ColorPicker } from "@/components/color-picker";
 import { Input } from "@/components/ui/input";
 import { Lock, AlignStartHorizontal, AlignStartVertical, AlignEndHorizontal, AlignCenter, AlignEndVertical, Image, ImageOff, Loader2, Search, ArrowLeftRight, Unlock } from "lucide-react";
+import { BorderRadius, Options } from "@/components/editor/initial";
+import { BorderController, type BorderSide } from "./BorderController";
 
 
-export interface IValues {
-  barColor?: string;
-  isBarOpen?: boolean;
-  barPosition?: 'top' | 'bottom' | 'left' | 'right';
-  barSize?: number;
-  borderRadius: { topLeft: number | null; topRight: number | null; bottomLeft: number | null; bottomRight: number | null; };
-  bgImage?: string;
-  bgPosition?: string;
-  gap?: number;
-}
 export interface TemplateControlsProps {
-  value: IValues;
-  onChange: (newValue: IValues) => void;
+  value: Options;
+  onChange: (newValue: Options) => void;
 }
 
 export const ColumnContoller = forwardRef<HTMLDivElement, TemplateControlsProps>(({
@@ -31,42 +23,37 @@ export const ColumnContoller = forwardRef<HTMLDivElement, TemplateControlsProps>
   onChange
 }, ref) => {
 
-  console.log("ColumnContoller recebeu value:", { 
-    completo: value, 
-    bgImage: value.bgImage,
-    definido: value.bgImage !== undefined
-  });
-  
-  // Logging inicial (apenas uma vez)
-  useEffect(() => {
-    console.log("ColumnContoller montado com value inicial:", {
-      completo: value,
-      bgImage: value.bgImage,
-      definido: value.bgImage !== undefined
-    });
-  }, []);
-
   const [isRadiusLocked, setIsRadiusLocked] = useState(false);
   const [imageUrlInput, setImageUrlInput] = useState(value.bgImage || "");
-  
-  console.log("ColumnContoller imageUrlInput inicial:", imageUrlInput);
-  
+  const [isBorderLocked, setIsBorderLocked] = useState(true);
+
+  const [currentOverallBorderWidth, setCurrentOverallBorderWidth] = useState<number | null>(
+    () => {
+      const bw = value.borderWidth;
+      if (typeof bw === 'object' && bw !== null && 'top' in bw && typeof bw.top === 'number') {
+        return bw.top;
+      }
+      return null;
+    }
+  );
+
   // --- Estados para o Banco de Imagens ---
   const [imageBankImages, setImageBankImages] = useState<any[]>([]);
   const [isLoadingImages, setIsLoadingImages] = useState(false);
   const [imageBankError, setImageBankError] = useState<string | null>(null);
   const [imageSearchQuery, setImageSearchQuery] = useState("abstract");
+  const [activeBorderSides, setActiveBorderSides] = useState<string[]>([]);
 
   const unsplashApiKey = process.env.NEXT_PUBLIC_UNSPLASH_ACCESS_KEY;
 
   // Atualiza imageUrlInput se value.bgImage mudar externamente
   useEffect(() => {
-    console.log("ColumnContoller useEffect [value.bgImage]:", { 
-      valueBgImage: value.bgImage, 
+    console.log("ColumnContoller useEffect [value.bgImage]:", {
+      valueBgImage: value.bgImage,
       imageUrlInput: imageUrlInput,
-      diferentes: value.bgImage !== imageUrlInput 
+      diferentes: value.bgImage !== imageUrlInput
     });
-    
+
     if (value.bgImage !== imageUrlInput) {
       console.log("ColumnContoller atualizando imageUrlInput para:", value.bgImage || "");
       setImageUrlInput(value.bgImage || "");
@@ -105,7 +92,7 @@ export const ColumnContoller = forwardRef<HTMLDivElement, TemplateControlsProps>
   };
 
   useEffect(() => {
-    if(unsplashApiKey) fetchUnsplashImages(imageSearchQuery);
+    if (unsplashApiKey) fetchUnsplashImages(imageSearchQuery);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [unsplashApiKey]); // Removido imageSearchQuery daqui para evitar busca na digitação
 
@@ -114,32 +101,21 @@ export const ColumnContoller = forwardRef<HTMLDivElement, TemplateControlsProps>
     fetchUnsplashImages(imageSearchQuery);
   };
 
-  // Helper para atualizar o estado externo
-  const handleChange = (key: keyof IValues, val: any) => {
-    console.log(`ColumnContoller handleChange chamado para ${key}:`, val);
-    // Cria uma cópia explícita do objeto value atual
-    const updatedValue = { ...value };
-    
-    // Verifica o valor atual de bgImage para debugging
-    console.log("Antes de atualizar, bgImage =", updatedValue.bgImage);
-    
-    // Atualiza a propriedade específica
-    (updatedValue as any)[key] = val;
-    
-    console.log("Após atualizar, objeto completo =", updatedValue);
-    
-    // Chama o onChange com o objeto atualizado
-    onChange(updatedValue);
+  const handleChange = (key: keyof Options, val: any) => {
+    onChange({ ...value, [key]: val });
   };
+
+
+
 
   const genereteRandomImage = () => {
     const randomImage = `https://picsum.photos/2000/2200?random=${Math.random()}`;
     console.log("ColumnContoller gerando imagem aleatória:", randomImage);
-    
+
     // Atualiza ambos os valores de uma vez
     const updatedValue = { ...value, bgImage: randomImage, bgPosition: 'center center' };
     onChange(updatedValue);
-    
+
     setImageUrlInput(randomImage); // Sincroniza input local
   };
 
@@ -151,11 +127,11 @@ export const ColumnContoller = forwardRef<HTMLDivElement, TemplateControlsProps>
       reader.onloadend = () => {
         const result = reader.result as string;
         console.log("ColumnContoller arquivo carregado, resultado:", result.substring(0, 50) + "...");
-        
+
         // Atualiza ambos os valores de uma vez
         const updatedValue = { ...value, bgImage: result, bgPosition: 'center center' };
         onChange(updatedValue);
-        
+
         setImageUrlInput(result); // Sincroniza input local
       };
       reader.readAsDataURL(file);
@@ -176,13 +152,13 @@ export const ColumnContoller = forwardRef<HTMLDivElement, TemplateControlsProps>
     }
   };
 
-  const handleRadiusChange = (corner: keyof IValues['borderRadius'], rawValue: string) => {
+  const handleRadiusChange = (corner: keyof BorderRadius, rawValue: string) => {
     const numValue = parseInt(rawValue, 10);
     // Usar NaN para resetar se o input estiver vazio ou inválido, permitindo null
     const clampedValue = isNaN(numValue) ? null : Math.max(0, Math.min(100, numValue));
 
 
-    let newBorderRadius: IValues['borderRadius'];
+    let newBorderRadius: Options['borderRadius'];
     if (isRadiusLocked) {
       newBorderRadius = {
         topLeft: clampedValue,
@@ -192,7 +168,10 @@ export const ColumnContoller = forwardRef<HTMLDivElement, TemplateControlsProps>
       };
     } else {
       newBorderRadius = {
-        ...value.borderRadius,
+        topLeft: value.borderRadius?.topLeft ?? null,
+        topRight: value.borderRadius?.topRight ?? null,
+        bottomLeft: value.borderRadius?.bottomLeft ?? null,
+        bottomRight: value.borderRadius?.bottomRight ?? null,
         [corner]: clampedValue,
       };
     }
@@ -210,10 +189,10 @@ export const ColumnContoller = forwardRef<HTMLDivElement, TemplateControlsProps>
             size="icon"
             className={cn(
               "h-7 w-7",
-              value.bgPosition === positionVal && "ring-2 ring-primary ring-offset-1 ring-offset-background"
+              value.imagePosition === positionVal && "ring-2 ring-primary ring-offset-1 ring-offset-background"
             )}
-            onClick={() => handleChange('bgPosition', positionVal)}
-            data-state={value.bgPosition === positionVal ? 'on' : 'off'}
+            onClick={() => handleChange('imagePosition', positionVal)}
+            data-state={value.imagePosition === positionVal ? 'on' : 'off'}
           >
             {icon}
           </Button>
@@ -234,19 +213,14 @@ export const ColumnContoller = forwardRef<HTMLDivElement, TemplateControlsProps>
 
       <TabsContent value="estilo" className="space-y-3 mt-0">
         <div className="p-3 rounded-md border border-border/50 bg-background/30 space-y-3">
-          <h3 className="text-xs font-medium text-muted-foreground">Cor e Tamanho</h3>
-          <div className="flex justify-center items-center gap-2">
-            <ColorPicker 
-              color={value.barColor || '#000000'} 
-              setColor={(newColor) => handleChange('barColor', newColor)} 
+          <div className="flex justify-between items-center mb-1">
+            <h3 className="text-xs font-medium text-muted-foreground">Cor do Fundo</h3>
+            <ColorPicker
+              color={value.bgColor || '#000000'}
+              setColor={(newColor) => handleChange('bgColor', newColor)}
+              className="w-6 h-6"
             />
-            <Input 
-              type="number" 
-              value={value.barSize === undefined || value.barSize === null ? '' : value.barSize}
-              onChange={(e) => handleChange('barSize', e.target.value === '' ? null : parseInt(e.target.value, 10))} 
-              className="w-20 h-7 text-xs"
-              placeholder="Tamanho"
-            />
+
           </div>
         </div>
         <div className="p-3 rounded-md border border-border/50 bg-background/30 space-y-3">
@@ -259,20 +233,36 @@ export const ColumnContoller = forwardRef<HTMLDivElement, TemplateControlsProps>
           <div className="grid grid-cols-2 gap-x-4 gap-y-2 items-center justify-items-center">
             <div className="flex items-center gap-1.5">
               <CornerTopLeft />
-              <Input type="number" value={value.borderRadius?.topLeft ?? ''} min={0} max={100} className="w-14 h-7 text-xs" onChange={(e) => handleRadiusChange('topLeft', e.target.value)} placeholder="0"/>
+              <Input type="number" value={value.borderRadius?.topLeft ?? ''} min={0} max={100} className="w-14 h-7 text-xs" onChange={(e) => handleRadiusChange('topLeft', e.target.value)} placeholder="0" />
             </div>
             <div className="flex items-center gap-1.5">
-              <Input type="number" value={value.borderRadius?.topRight ?? ''} min={0} max={100} className="w-14 h-7 text-xs" onChange={(e) => handleRadiusChange('topRight', e.target.value)} placeholder="0"/>
+              <Input type="number" value={value.borderRadius?.topRight ?? ''} min={0} max={100} className="w-14 h-7 text-xs" onChange={(e) => handleRadiusChange('topRight', e.target.value)} placeholder="0" />
               <CornerTopRight />
             </div>
             <div className="flex items-center gap-1.5">
               <CornerBottomLeft />
-              <Input type="number" value={value.borderRadius?.bottomLeft ?? ''} min={0} max={100} className="w-14 h-7 text-xs" onChange={(e) => handleRadiusChange('bottomLeft', e.target.value)} placeholder="0"/>
+              <Input type="number" value={value.borderRadius?.bottomLeft ?? ''} min={0} max={100} className="w-14 h-7 text-xs" onChange={(e) => handleRadiusChange('bottomLeft', e.target.value)} placeholder="0" />
             </div>
             <div className="flex items-center gap-1.5">
-              <Input type="number" value={value.borderRadius?.bottomRight ?? ''} min={0} max={100} className="w-14 h-7 text-xs" onChange={(e) => handleRadiusChange('bottomRight', e.target.value)} placeholder="0"/>
+              <Input type="number" value={value.borderRadius?.bottomRight ?? ''} min={0} max={100} className="w-14 h-7 text-xs" onChange={(e) => handleRadiusChange('bottomRight', e.target.value)} placeholder="0" />
               <CornerBottomRight />
             </div>
+          </div>
+
+        </div>
+        <BorderController
+          value={value.borderWidth || { top: 0, right: 0, bottom: 0, left: 0 }}
+          onChange={(newValue) => handleChange('borderWidth', newValue)}
+        />
+
+        <div className="p-3 rounded-md border border-border/50 bg-background/30 space-y-3">
+          <div className="flex justify-between items-center mb-1">
+            <h3 className="text-xs font-medium text-muted-foreground">Cor da borda</h3>
+            <ColorPicker
+              color={value.borderColor || '#000000'}
+              setColor={(color) => handleChange('borderColor', color)}
+              className="w-6 h-6"
+            />
           </div>
         </div>
       </TabsContent>
@@ -287,25 +277,25 @@ export const ColumnContoller = forwardRef<HTMLDivElement, TemplateControlsProps>
             <input type="file" id="bg-image-upload" accept="image/*" onChange={handleFileChange} className="hidden" />
           </div>
           <div className="flex gap-2 items-center">
-            <Input 
-              type="url" 
-              placeholder="URL da imagem..." 
-              value={imageUrlInput} 
-              onChange={(e) => setImageUrlInput(e.target.value)} 
-              className="h-8 text-sm flex-grow" 
+            <Input
+              type="url"
+              placeholder="URL da imagem..."
+              value={imageUrlInput}
+              onChange={(e) => setImageUrlInput(e.target.value)}
+              className="h-8 text-sm flex-grow"
             />
             <Button variant="outline" size="sm" onClick={handleUrlApply} disabled={!imageUrlInput.trim()} className="whitespace-nowrap">Aplicar URL</Button>
           </div>
-          <Button 
-            variant="outline" 
-            size="sm" 
+          <Button
+            variant="outline"
+            size="sm"
             onClick={() => {
               console.log("ColumnContoller removendo bgImage");
               // Atualiza ambos os valores de uma vez
               const updatedValue = { ...value, bgImage: undefined, bgPosition: undefined };
               onChange(updatedValue);
               setImageUrlInput(""); // Limpa input local
-            }} 
+            }}
             className="w-full"
           >
             <ImageOff size={14} className="mr-1.5" />
@@ -358,11 +348,11 @@ export const ColumnContoller = forwardRef<HTMLDivElement, TemplateControlsProps>
                     id: img.id,
                     url: img.urls.regular
                   });
-                  
+
                   // Atualiza ambos os valores de uma vez
                   const updatedValue = { ...value, bgImage: img.urls.regular, bgPosition: 'center center' };
                   onChange(updatedValue);
-                  
+
                   setImageUrlInput(img.urls.regular); // Sincroniza input local
                 }}
                 className="aspect-square bg-muted hover:ring-2 hover:ring-primary hover:ring-offset-1 hover:ring-offset-background rounded overflow-hidden focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-1 focus:ring-offset-background transition-all relative group"
@@ -394,15 +384,17 @@ export const ColumnContoller = forwardRef<HTMLDivElement, TemplateControlsProps>
             <PositionButton positionVal="center bottom" icon={<AlignEndVertical size={14} />} label="Base" />
             <PositionButton positionVal="right bottom" icon={<AlignEndHorizontal size={14} className="transform -rotate-45" />} label="Base Direita" />
           </div>
+
         </div>
+
       </TabsContent>
     </Tabs>
   );
 
   return (
-      <div ref={ref} className="h-full w-full overflow-y-auto p-1">
-        {renderBarControls()}
-      </div>
+    <div ref={ref} className="h-full w-full overflow-y-auto p-1">
+      {renderBarControls()}
+    </div>
   );
 
 });
@@ -414,3 +406,5 @@ const CornerTopLeft = () => <CornerIcon className={`border-t border-l`} />;
 const CornerTopRight = () => <CornerIcon className={`border-t border-r`} />;
 const CornerBottomLeft = () => <CornerIcon className={`border-b border-l`} />;
 const CornerBottomRight = () => <CornerIcon className={`border-b border-r`} />;
+
+

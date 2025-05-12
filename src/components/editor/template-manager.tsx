@@ -1,5 +1,5 @@
 import React from 'react';
-import { ResumeTemplate, BASIC_TEMPLATE, modernSidebarTemplate, profileFeatureTemplate } from './initial';
+import { ResumeTemplate, availableTemplates } from './initial';
 
 interface TemplateManagerProps {
   onSelectTemplate: (template: ResumeTemplate) => void;
@@ -11,7 +11,7 @@ const TemplateManager: React.FC<TemplateManagerProps> = ({ onSelectTemplate, sel
     {
       id: 'simple',
       name: 'Simples',
-      templates: [BASIC_TEMPLATE, modernSidebarTemplate, profileFeatureTemplate]
+      templates:availableTemplates
     }
   ];
 
@@ -55,7 +55,7 @@ const TemplateManager: React.FC<TemplateManagerProps> = ({ onSelectTemplate, sel
                       </div>
                     </div>
                     
-                    {selectedTemplate.id === template.id && (
+                    {selectedTemplate?.id === template.id && (
                       <div className="absolute inset-0 bg-blue-600 bg-opacity-10 flex items-center justify-center pointer-events-none">
                         <div className="bg-blue-600 rounded-full p-1 shadow-md">
                           <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">

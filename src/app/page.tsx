@@ -1,32 +1,23 @@
 "use client";
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable";
-// Removido Editor Yoopta e tipos relacionados por enquanto
-// import { Editor } from "../components/editor"; 
-// import { YooptaContentValue, YooptaBlockData } from "@yoopta/editor";
 import TemplateManager from "../components/editor/template-manager";
-// Removido getTemplateById por enquanto, selectedTemplate já é ResumeTemplate
-import { ResumeTemplate, modernSidebarTemplate, sampleModernSidebarContent } from "../components/editor/initial"; 
-import { Layout, Settings, ZoomIn, ZoomOut, RotateCcw as ResetZoomIcon } from 'lucide-react';
+import { Layout, RotateCcw as ResetZoomIcon, Settings, ZoomIn, ZoomOut } from 'lucide-react';
 import AIChatPanel, { ResumeEditCommand } from "../components/ai/AIChatPanel"; // Comandos específicos do Yoopta podem precisar de ajuste
-// import { ModeToggle } from "@/components/theme-toggle"; // Removido se não usado diretamente aqui
-import useTemplate from "@/hooks/use-template";
-import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { ResumeTemplate, sampleModernSidebarContent } from "../components/editor/initial";
 import { Button } from "@/components/ui/button";
-// import { TemplateController } from "@/components/editor/editor-wrapper"; // Removido se era para Yoopta
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import useTemplate from "@/hooks/use-template";
 
 // Novo import para ResumeRenderer e CustomResumeData
-import {ResumeRenderer} from "@/components/resume/renderer/ResumeRenderer";
+import { ResumeRenderer } from "@/components/resume/renderer/ResumeRenderer";
 import { CustomResumeData } from "@/types/resume-data";
-import { useState, useEffect, useCallback } from "react"; // Adicionado useCallback
+import { useCallback, useEffect, useState } from "react"; // Adicionado useCallback
 
-// Removido isYooptaBlockData se não mais necessário para Yoopta
 
 export default function Home() {
   const { selectedTemplate, setSelectedTemplate } = useTemplate();
-  // Estado para o conteúdo do currículo no formato CustomResumeData
   const [currentResumeData, setCurrentResumeData] = useState<CustomResumeData | undefined>(
-    // Inicializa com o initialContent do template selecionado ou o sample se nenhum selecionado ainda
     selectedTemplate?.initialContent || sampleModernSidebarContent 
   );
   const [isEditable, setIsEditable] = useState(true); // Para controlar a editabilidade do ResumeRenderer
@@ -163,7 +154,7 @@ export default function Home() {
           <main className="flex-1 bg-muted overflow-auto p-4 md:p-8">
             {/* A área do editor Yoopta é substituída pelo ResumeRenderer */}
             <div 
-              className={`relative mx-auto bg-card shadow-lg`}
+              className={` mx-auto bg-card shadow-lg`}
               style={{
                 width: '21cm',
                 minHeight: '29.7cm',
