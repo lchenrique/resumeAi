@@ -31,6 +31,13 @@ interface DragData {
     command: (editor: Editor) => boolean | void;
   }
   
+  function useDebouncedEffect(effect: () => void, deps: any[], delay: number) {
+    useEffect(() => {
+      const handler = setTimeout(() => effect(), delay);
+      return () => clearTimeout(handler);
+    }, [...deps, delay]);
+  }
+  
 
 const EditorContext = createContext<null | {
     control: ReturnType<typeof useForm<FormValues>>['control'];
@@ -41,17 +48,35 @@ const EditorContext = createContext<null | {
     form: ReturnType<typeof useForm<FormValues>>;
     draggedBlock: DragData | null;
     setDraggedBlock: (draggedBlock: DragData | null) => void;
+    id?: string;
+    savePdfData: () =>  Promise<void>;
+    isSaving: boolean;  
 }>(null);
 
-export const EditorProvider = ({ children }: { children: React.ReactNode }) => {
+export const EditorProvider = ({ children, initialData, id:dataId }: { children: React.ReactNode, initialData: EditorItem[], id: string }) => {
     const [draggedBlock, setDraggedBlock] = useState<DragData | null>(null);
+    const [isSaving, setIsSaving] = useState(false);
+
+    
+    const savePdfData =  useCallback(async () => {
+        setIsSaving(true);
+        const res = await fetch('/api/pdf/save-pdf-data', {
+            method: 'POST',
+            body: JSON.stringify({ data: editorValues, id: dataId }),
+            headers: { 'Content-Type': 'application/json' },
+          });
+          const { id } = await res.json();
+          console.log('ID salvo:', id);
+          setIsSaving(false);
+    }, []);
    
 
     const query = useSearchParams()
     const contents = query?.get('contents')
+    console.log(contents)
     const form = useForm<FormValues>({
         defaultValues: {
-            editors: contents ? JSON.parse(contents) : [
+            editors:  initialData?.length > 0 ? initialData : [
                 {
                     id: '1',
                     content: {
@@ -87,6 +112,17 @@ export const EditorProvider = ({ children }: { children: React.ReactNode }) => {
         form.setValue('editors', updated);
     };
 
+  // Salva o conteúdo 1000ms após parar de digitar
+  useDebouncedEffect(() => {
+    if (editorValues && editorValues.length > 0) {
+      console.log('⏳ Conteúdo salvo:', editorValues);
+      savePdfData(); // Aqui você salva tudo no Supabase ou outro backend
+    }
+  }, [editorValues], 1000);
+
+
+
+  
 
     return (
         <FormProvider {...form}>
@@ -99,7 +135,10 @@ export const EditorProvider = ({ children }: { children: React.ReactNode }) => {
                     updateLayout,
                     form,
                     draggedBlock,
-                    setDraggedBlock
+                    setDraggedBlock,
+                    id: dataId,
+                    savePdfData,
+                    isSaving
                 }}
             >
                 {children}

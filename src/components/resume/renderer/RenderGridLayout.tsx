@@ -6,7 +6,7 @@ import 'react-resizable/css/styles.css';
 import { ResumeTemplate, ResumeLayout as LayoutConfiguration, CellType, ContainerType, Options } from './types';
 import { EditorInstance } from '@/components/editor/EditorInstance';
 import { cn } from '@/lib/utils';
-import { GripIcon, GripVertical } from 'lucide-react';
+import { GripIcon, GripVertical, Loader2 } from 'lucide-react';
 import { getSectionContent, sectionMap } from '../sections/section-map';
 import { JSONContent } from '@tiptap/react';
 import { EditorItem, useEditorContext } from '@/contexts/editor-context';
@@ -14,6 +14,7 @@ import { useFormContext } from 'react-hook-form';
 import { ResumeSectionKey } from '@/types/resume-data';
 import { HandlesDrag } from './HandlesDrag';
 import { useSearchParams } from 'next/navigation';
+import { ResumeSkeleton } from '../resume-skeleton';
 
 
 const A4_WIDTH_PX = 794;
@@ -68,13 +69,11 @@ const mapLayoutConfigToGridLayout = (
 
 
 const RenderGridLayout: React.FC<RenderGridLayoutProps> = ({ template }) => {
-    const { editorValues, updateEditorContent, updateLayout, form } = useEditorContext();
+    const { editorValues, updateEditorContent, updateLayout, form, id } = useEditorContext();
     const [isLoading, setIsLoading] = useState(true);
-    const query = useSearchParams()
-    const contents = query?.get('contents')
 
     useEffect(() => {
-        if (!contents) {
+        if (!id) {
             if (!form) {
                 return;
             }
@@ -103,7 +102,7 @@ const RenderGridLayout: React.FC<RenderGridLayoutProps> = ({ template }) => {
         updateLayout(layout);
     };
 
-    if (isLoading) return <div>Carregando template...</div>;
+    if (isLoading) return <ResumeSkeleton />
 
 
     return (

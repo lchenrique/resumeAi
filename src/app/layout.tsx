@@ -35,10 +35,6 @@ export default function RootLayout({
             <ScrollArea className="flex-1 relative">
               <main className="p-4 lg:p-6 relative print:p-0">
                 {children}
-
-                <div className='fixed top-48  right-5 flex flex-col gap-2 z-[9999] print:hidden'>
-                  <FloatingControls />
-                </div>
               </main>
             </ScrollArea>
           </div>

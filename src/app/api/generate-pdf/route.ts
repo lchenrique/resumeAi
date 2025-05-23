@@ -11,18 +11,11 @@ const BASE_URL = process.env.VERCEL_URL
 
 export async function POST(request: NextRequest) {
   console.log("API Route /api/generate-pdf chamada");
-  const { fileName, editorValues } = await request.json();
-  if(!fileName || !editorValues) {
-    return NextResponse.json({ error: 'Nome do arquivo e conteúdo são obrigatórios' }, { status: 400 });
+  const { fileName } = await request.json();
+  if(!fileName) {
+    return NextResponse.json({ error: 'Nome do arquivo é obrigatório' }, { status: 400 });
   }
 
-  if(editorValues.length === 0) {
-    return NextResponse.json({ error: 'Conteúdo não pode ser vazio' }, { status: 400 });
-  }
-
-  const query = new URLSearchParams({
-    contents: JSON.stringify(editorValues),
-  }).toString();
 
   try {
     console.log("Tentando iniciar Puppeteer...");
@@ -47,7 +40,7 @@ export async function POST(request: NextRequest) {
     });
 
     // URL da página de impressão
-    const printUrl = `${BASE_URL}/print-view?${query.toString()}`;
+    const printUrl = `${BASE_URL}/print-view`;
     
     console.log(`Navegando para a URL: ${printUrl}`);
     
