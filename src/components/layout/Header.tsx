@@ -7,7 +7,7 @@ import { ModeToggle } from '@/components/theme-toggle';
 
 const Header = () => {
   return (
-    <header className="h-14  z-50 w-full border-b border-border/40 dark:border-zinc-700/40 bg-background/95 dark:bg-zinc-900/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 dark:supports-[backdrop-filter]:bg-zinc-900/60">
+    <header className="print:hidden h-14  z-50 w-full border-b border-border/40 dark:border-zinc-700/40 bg-background/95 dark:bg-zinc-900/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 dark:supports-[backdrop-filter]:bg-zinc-900/60">
       <div className="px-10 flex h-14   items-center">
         <Link href="/" className="mr-6 flex items-center space-x-2">
           <DraftingCompass className="h-6 w-6 text-primary dark:text-blue-400" />

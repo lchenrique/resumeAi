@@ -2,4 +2,4 @@
  
 import dynamic from "next/dynamic";
  
-export const Editor = dynamic(() => import("./Editor").then(mod => mod.Editor), { ssr: false });
+export const Editor = dynamic(() => import("./EditorInstance").then(mod => mod.EditorInstance), { ssr: false });

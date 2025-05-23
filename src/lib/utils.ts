@@ -1,9 +1,7 @@
-import { SectionSpecificStyles, TemplateLayoutConfig } from "@/components/editor/initial";
 import { Block, BlockNoteDocument } from "@/components/editor/type";
+import { ResumeLayout } from "@/components/resume/renderer/types";
 import { CustomResumeData, ResumeSectionKey } from "@/types/resume-data";
-import clsx from "clsx";
-import { ClassValue } from "clsx";
-import { ValueOf } from "next/dist/shared/lib/constants";
+import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
 
 export function cn(...inputs: ClassValue[]) {
@@ -35,7 +33,7 @@ export function getChildren(value: any[] | any, displayName: string): any {
 }
 
 
-export const convertToBlock = (type: keyof CustomResumeData, value: CustomResumeData, style: TemplateLayoutConfig["sectionStyles"]): BlockNoteDocument | null => {
+export const convertToBlock = (type: keyof CustomResumeData, value: CustomResumeData, style: ResumeLayout["cells"][]): BlockNoteDocument | null => {
 
   if (!value) return null;
   const sectionsEntries = Object.entries(value);
@@ -87,7 +85,7 @@ export const convertToBlock = (type: keyof CustomResumeData, value: CustomResume
 const getBLockBasedOnType = (
   type: keyof CustomResumeData,
   value: any,
-  style: TemplateLayoutConfig["sectionStyles"]): BlockNoteDocument | null => {
+  style: any): BlockNoteDocument | null => {
   switch (type) {
     case "personalInfo":
       return [{
@@ -157,7 +155,41 @@ const getBLockBasedOnType = (
           }
         }],
       }];
-
+    case "summary":
+      return [{
+        type: "paragraph",
+        content: value,
+        styles: style?.summary
+      }]
+    case "experience":
+      const experience = value.map((experience: any) => ({
+          type: "text",
+          text: experience.company,
+          styles:{
+            bold: false,
+          },
+      }))
+      return [{
+        type: "heading",
+        content: experience,
+        styles: style?.experience,
+        props:{
+          level: 3
+        }
+      }]
+    case "education":
+      return [{
+        type: "heading",
+        content: value.school,
+        styles: style?.education
+      }]
+    case "skills":
+      return [{
+        type: "heading",
+        content: value.skills,
+        styles: style?.skills
+      }]
+      
     default:
       return null;
   }

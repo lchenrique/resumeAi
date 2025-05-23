@@ -1,8 +1,9 @@
+import { LayoutCell, LayoutContainer, SwapableItem } from "@/components/resume/renderer/layouts/SwapyNestedLayout";
 import { defaultProps } from "@blocknote/core";
 import { createReactBlockSpec } from "@blocknote/react";
- 
+
 import { Search, AlertTriangle, InfoIcon as LucideInfoIcon, CheckCircle } from "lucide-react";
- 
+
 // The types of alerts that users can choose from.
 export const alertTypes = [
   {
@@ -46,7 +47,7 @@ export const alertTypes = [
     },
   },
 ] as const;
- 
+
 // The Alert block.
 export const Alert = createReactBlockSpec(
   {
@@ -68,15 +69,20 @@ export const Alert = createReactBlockSpec(
       ) || alertTypes[0];
       const Icon = alertType.icon;
       return (
-        <div className={"alert"} data-alert-type={props.block.props.type}>
-       
-       <div className="bg-red-500 p-3">
-       <div className={"inline-content"} ref={props.contentRef} />
+        <LayoutContainer direction="column" defaultSizes={[30, 50, 20]}>
+          <LayoutCell id={props.block.id} minHeight={100} minWidth={100}>
+            <SwapableItem id={`item-${props.block.id}-1`}>
+              <div className={"alert"} data-alert-type={props.block.props.type}>
 
-       </div>
-        </div>
+                <div className="bg-red-500 p-3">
+                  <div className={"inline-content"} ref={props.contentRef} />
+
+                </div>
+              </div>
+            </SwapableItem>
+          </LayoutCell>
+        </LayoutContainer>
       );
     },
   }
 );
- 

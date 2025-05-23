@@ -1,10 +1,19 @@
-import { ThemeProvider } from '@/components/theme-provider';
-import './globals.css';
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
+import '@/app/globals.css';
+import React from 'react';
 import Header from '@/components/layout/Header';
+import AppSidebar from '@/components/sidebar/AppSidebar';
+import FloatingControls from '@/components/floating-controls';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { ThemeProvider } from "@/components/theme-provider";
 
 const inter = Inter({ subsets: ['latin'] });
+
+export const metadata: Metadata = {
+  title: 'ResumeAI',
+  description: 'Crie currículos impressionantes com IA',
+};
 
 export default function RootLayout({
   children,
@@ -12,19 +21,26 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" suppressHydrationWarning>
-      <body className={inter.className}>
+    <html lang="pt-BR" suppressHydrationWarning>
+      <body className={`${inter.className} flex flex-col h-screen bg-card overflow-hidden`}>
         <ThemeProvider
           attribute="class"
           defaultTheme="system"
           enableSystem
           disableTransitionOnChange
         >
-          <div className='flex flex-col h-full '>
-            <Header />
-            <div className=' h-[calc(100vh-57px)] p-5 rounded-lg bg-muted/50 '>
-              {children}
-            </div>
+          <Header />
+          <div className="flex flex-1 overflow-hidden">
+            <AppSidebar />
+            <ScrollArea className="flex-1 relative">
+              <main className="p-4 lg:p-6 relative print:p-0">
+                {children}
+
+                <div className='fixed top-48  right-5 flex flex-col gap-2 z-[9999] print:hidden'>
+                  <FloatingControls />
+                </div>
+              </main>
+            </ScrollArea>
           </div>
 
         </ThemeProvider>

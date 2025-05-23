@@ -5,7 +5,7 @@ import {
 } from "@blocknote/core";
 import { createReactBlockSpec, ReactCustomBlockRenderProps } from "@blocknote/react";
 import React, { CSSProperties } from "react";
-import { TextSchema } from "../toolbar/text-color";
+import { TextSchema } from "../menus/text-color";
 
 
 type AppInlineContentSchema = DefaultInlineContentSchema;

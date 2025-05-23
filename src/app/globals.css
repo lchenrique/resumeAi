@@ -87,11 +87,15 @@
     --chart-5: 220.66 71.03% 58.04%;
   }
 }
+
 /* --->  style para list bullet item --*/
 li[data-content-type="listBulletItem"] {
-   color: var(--bullet-list-item-color) !important;
+  color: var(--bullet-list-item-color) !important;
 }
-.bn-list-item::before{
+
+
+
+.bn-list-item::before {
   content: "";
   display: inline-block;
   position: absolute;
@@ -106,22 +110,25 @@ li[data-content-type="listBulletItem"] {
   top: 50%;
   transform: translateY(-50%);
 }
+
 [data-resize-handle-state="inactive"].custom-handle {
   background-color: transparent !important;
 }
+
 [data-resize-handle-state="hover"].custom-handle {
-  background-color: hsl(var(--primary) / 0.6)!important;
+  background-color: hsl(var(--primary) / 0.6) !important;
 }
+
 [data-resize-handle-state="drag"].custom-handle {
-  background-color: hsl(var(--primary) / 0.6)!important;
+  background-color: hsl(var(--primary) / 0.6) !important;
 }
 
 [data-resize-handle-state="drag"].custom-handle:hover {
-  background-color: hsl(var(--primary) / 0.6)!important;
+  background-color: hsl(var(--primary) / 0.6) !important;
 }
 
 [data-resize-handle-state="drag"].custom-handle:active {
-  background-color: hsl(var(--primary) / 0.6)!important;
+  background-color: hsl(var(--primary) / 0.6) !important;
 }
 
 .bn-container {
@@ -129,14 +136,15 @@ li[data-content-type="listBulletItem"] {
 }
 
 .bn-container>div+div {
-  background: hsl(var(--background) / 0.4)!important;
+  background: hsl(var(--background) / 0.4) !important;
   border-radius: 8px !important;
   backdrop-filter: blur(7.5px);
   -webkit-backdrop-filter: blur(7.5px);
   left: -5px !important;
 }
-.mantine-focus-auto.bn-button:hover{
-  background: hsl(var(--background) / 0.7)!important;
+
+.mantine-focus-auto.bn-button:hover {
+  background: hsl(var(--background) / 0.7) !important;
 }
 
 .bn-editor {
@@ -192,624 +200,72 @@ li[data-content-type="listBulletItem"] {
   animation: fadeIn 0.3s ease-in-out;
 }
 
-/* Editor styles */
-.yoopta-editor {
-  width: 100% !important;
-  height: 100% !important;
-  @apply bg-background !important;
-}
-
-.dark .yoopta-block-actions-drag,
-.dark .yoopta-block-actions-plus {
-  color: theme('colors.foreground');
-}
-
-.dark .yoopta-block-options-menu-content,
-.dark .yoopta-action-menu-list-content,
-.dark .yoo-action-menu-flex {
-  background-color: theme('colors.background');
-}
-
-.dark .yoopta-button:hover {
-  background-color: theme('colors.muted.DEFAULT');
-}
-
-.yoopta-heading-two {
-  margin-top: 0 !important;
-}
-
-/* Template Básico */
-.yoopta-editor h1 {
-  font-size: 2rem;
-}
-
-.yoopta-editor h2 {
-  font-size: 1.5rem;
-}
-
-.yoopta-editor h3 {
-  font-size: 1.2rem;
-}
-
-.yoopta-editor p {
-  font-size: 1rem;
-}
-
-
-
-/* Template Minimalista */
-.template-minimal .yoopta-editor {
-  max-width: 700px;
-  /* Mantido para estrutura */
-}
-
-
-/* Template Profissional */
-.template-professional .yoopta-editor {
-  /* Mantido para layout com sidebar */
-  position: relative;
-  padding: 2.5rem;
-  padding-top: 1rem;
-  padding-left: 9rem;
-}
-
-.template-professional .yoopta-editor::before {
-  /* Mantido para sidebar */
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 7rem;
-  height: 100%;
-  background-color: #1a365d;
-  z-index: 0;
-}
-
-.template-professional .yoopta-editor h1 {
-  /* font-size, font-weight, color, margin-bottom removidos */
-  position: relative;
-  /* Mantido se necessário para z-index sobre ::before */
-}
-
-.template-professional .yoopta-editor h2 {
-  /* font-size, font-weight, color, margin-top, margin-bottom, padding-bottom, border-bottom removidos */
-  position: relative;
-}
-
-.template-professional .yoopta-editor h3 {
-  /* font-size, font-weight, color, margin-top, margin-bottom removidos */
-  position: relative;
-}
-
-.template-professional .yoopta-editor p {
-  /* margin-bottom, line-height removidos */
-  position: relative;
-}
-
-.template-professional .yoopta-editor ul {
-  /* margin-left, margin-bottom removidos */
-  position: relative;
-}
-
-.template-professional .yoopta-editor li {
-  /* margin-bottom, position removidos */
-  position: relative;
-}
-
-.template-professional .yoopta-editor li::before {
-  /* Regra removida */
-}
-
-/* Template Criativo */
-.template-creative .yoopta-editor {
-  /* Mantido para borda superior */
-  position: relative;
-  padding: 1.5rem;
-  border-top: 0.5rem solid #ed8936;
-}
-
-.template-creative .yoopta-editor h1 {
-  /* font-size, font-weight, color, margin-bottom, line-height removidos */
-}
-
-.template-creative .yoopta-editor h2 {
-  /* font-size, font-weight, color, position, display, border-bottom removidos */
-}
-
-.template-creative .yoopta-editor h3 {
-  /* font-size, font-weight, color, margin-top, margin-bottom removidos */
-}
-
-.template-creative .yoopta-editor p {
-  /* margin-bottom, line-height removidos */
-}
-
-.template-creative .yoopta-editor ul {
-  /* margin-left, margin-bottom removidos */
-}
-
-.template-creative .yoopta-editor li {
-  /* margin-bottom, position removidos */
-}
-
-.template-creative .yoopta-editor li::before {
-  /* Regra removida */
-}
-
-/* Visualização de template */
-.preview-frame {
-  width: 100%;
-  height: 100%;
-  position: relative;
-  overflow: hidden;
-  background-color: white;
-}
-
-.template-preview {
-  transform: scale(0.8);
-  transform-origin: top center;
-  border: 1px solid #e2e8f0;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-  background-color: white;
-  overflow: hidden;
-  transition: all 0.2s ease;
-}
-
-.template-preview:hover {
-  transform: scale(0.82);
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-}
-
-/* Adicional: Estilos para menu lateral */
-.template-sidebar {
-  background-color: white;
-  border-right: 1px solid #e2e8f0;
-  height: 100%;
-  transition: all 0.3s ease;
-}
-
-.template-toggle-btn {
-  position: fixed;
-  z-index: 50;
-  top: 1rem;
-  left: 1rem;
-  background-color: white;
-  border-radius: 50%;
-  width: 2.5rem;
-  height: 2.5rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.template-toggle-btn:hover {
-  background-color: #f7fafc;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-}
-
-/* Container para o editor */
-.editor-container , .bn-shadcn .bn-editor {
-  max-width: 850px;
-  margin: 0 auto;
-  min-height: 100%;
-  transition: all 0.2s ease-in-out;
-  background-color: transparent !important; 
-}
-
-
-
-/* Estilo para templates com foto */
-.photo-placeholder {
-  background-color: #e2e8f0;
-  border-radius: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #94a3b8;
-  font-size: 24px;
-  overflow: hidden;
-}
-
-/* Template Classic */
-.template-classic .yoopta-editor {
-  padding: 30px;
-  /* font-family removido */
-}
-
-.template-classic .yoopta-editor h1 {
-  /* font-size, font-weight, color, text-align, margin-bottom, border-bottom, padding-bottom removidos */
-}
-
-.template-classic .yoopta-editor h2 {
-  /* font-size, font-weight, color, margin-top, margin-bottom, text-transform, letter-spacing removidos */
-}
-
-.template-classic .yoopta-editor h3 {
-  /* font-size, font-weight, color, margin-top, margin-bottom removidos */
-}
-
-.template-classic .yoopta-editor p {
-  /* margin-bottom, line-height, color removidos */
-}
-
-.template-classic .yoopta-editor ul {
-  /* margin-left, margin-bottom removidos */
-}
-
-.template-classic .yoopta-editor li {
-  /* margin-bottom, position, line-height removidos */
-}
-
-.template-classic .yoopta-editor li::before {
-  /* Regra removida */
-}
-
-/* Template Elegant com espaço para foto */
-.template-elegant .yoopta-editor {
-  /* Mantido para layout */
-  padding: 30px;
-  padding-left: 170px;
-  position: relative;
-  /* font-family removido */
-}
-
-.template-elegant .yoopta-editor::before {
-  /* Mantido para sidebar */
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 140px;
-  height: 100%;
-  background-color: #f8fafc;
-  z-index: 0;
-}
-
-.template-elegant .photo-placeholder {
-  /* Mantido para posicionamento */
-  position: absolute;
-  top: 30px;
-  left: 35px;
-  width: 70px;
-  height: 70px;
-  z-index: 1;
-}
-
-.template-elegant .yoopta-editor h1 {
-  /* font-size, font-weight, color, margin-bottom removidos */
-  position: relative;
-}
-
-.template-elegant .yoopta-editor h2 {
-  /* font-size, font-weight, font-style, color, margin-top, margin-bottom removidos */
-  position: relative;
-}
-
-.template-elegant .yoopta-editor h3 {
-  /* font-size, font-weight, color, margin-top, margin-bottom removidos */
-  position: relative;
-}
-
-.template-elegant .yoopta-editor p {
-  /* margin-bottom, line-height, color removidos */
-  position: relative;
-}
-
-.template-elegant .yoopta-editor ul {
-  /* margin-left, margin-bottom removidos */
-  position: relative;
-}
-
-.template-elegant .yoopta-editor li {
-  /* margin-bottom, position, line-height removidos */
-  position: relative;
-}
-
-.template-elegant .yoopta-editor li::before {
-  /* Regra removida */
-}
-
-/* Template Executive com espaço para foto e divisões claras */
-.template-executive .yoopta-editor {
-  padding: 25px;
-  position: relative;
-  /* font-family removido */
-}
-
-.template-executive .photo-placeholder {
-  /* Mantido para layout */
-  float: right;
-  width: 80px;
-  height: 80px;
-  margin-left: 15px;
-  margin-bottom: 15px;
-}
-
-.template-executive .yoopta-editor h1 {
-  /* font-size, font-weight, color, margin-bottom, padding-bottom, border-bottom removidos */
-}
-
-.template-executive .yoopta-editor h2 {
-  /* font-size, font-weight, color, margin-top, margin-bottom, text-transform, letter-spacing, border-bottom, padding-bottom removidos */
-}
-
-.template-executive .yoopta-editor h3 {
-  /* font-size, font-weight, color, margin-top, margin-bottom removidos */
-}
-
-.template-executive .yoopta-editor p {
-  /* margin-bottom, line-height removidos */
-}
-
-.template-executive .yoopta-editor ul {
-  /* margin-left, margin-bottom removidos */
-}
-
-.template-executive .yoopta-editor li {
-  /* margin-bottom, position, line-height removidos */
-}
-
-.template-executive .yoopta-editor li::before {
-  /* Regra removida */
-}
-
-/* Template Compact para muita informação em pouco espaço */
-.template-compact .yoopta-editor {
-  padding: 20px;
-  /* font-family, font-size removidos */
-}
-
-.template-compact .yoopta-editor h1 {
-  /* font-size, font-weight, color, margin-bottom, text-align removidos */
-}
-
-.template-compact .yoopta-editor h2 {
-  /* font-size, font-weight, color, margin-top, margin-bottom, background-color, padding removidos */
-}
-
-.template-compact .yoopta-editor h3 {
-  /* font-size, font-weight, color, margin-top, margin-bottom removidos */
-}
-
-.template-compact .yoopta-editor p {
-  /* margin-bottom, line-height, font-size removidos */
-}
-
-.template-compact .yoopta-editor ul {
-  /* margin-left, margin-bottom removidos */
-}
-
-.template-compact .yoopta-editor li {
-  /* margin-bottom, position, line-height, font-size removidos */
-}
-
-.template-compact .yoopta-editor li::before {
-  /* Regra removida */
-}
-
-/* Template Contemporâneo com Foto */
-.template-contemporary-photo .yoopta-editor h1 {
-  /* font-size, color removidos */
-}
-
-.template-contemporary-photo .yoopta-editor h2 {
-  /* font-size, color, border-bottom removidos */
-}
-
-.template-contemporary-photo .yoopta-editor p[data-element-id="idPlaceholderFoto"] {
-  /* Estilos de posicionamento/placeholder mantidos */
-  color: #9ca3af;
-  font-style: italic;
-  text-align: right;
-  font-size: 0.8rem;
-  margin-top: -2.5rem;
-  margin-bottom: 1rem;
-}
-
-/* Template Acadêmico Elegante */
-.template-academic-elegant .yoopta-editor {
-  /* font-family removido */
-}
-
-.template-academic-elegant .yoopta-editor h1 {
-  /* font-size, text-align, border-bottom removidos */
-}
-
-.template-academic-elegant .yoopta-editor h2 {
-  /* font-size, text-transform, letter-spacing, color removidos */
-}
-
-.template-academic-elegant .yoopta-editor p {
-  /* font-size, line-height removidos */
-}
-
-/* Template Infográfico Criativo */
-.template-infographic-creative .yoopta-editor h1 {
-  /* color removido */
-}
-
-.template-infographic-creative .yoopta-editor h2 {
-  /* color, background-color, padding, display removidos */
-}
-
-.template-infographic-creative .yoopta-editor p[data-element-id^="idHabilidade"] {
-  /* Mantido para estilo específico de 'skill' */
-  font-family: monospace;
-  background-color: #f3f4f6;
-  padding: 0.2rem 0.4rem;
-  margin-bottom: 0.3rem;
-  border-radius: 4px;
-}
-
-/* --- MAIS NOVOS ESTILOS --- */
-
-/* Template Tech Moderno */
-.template-tech-modern .yoopta-editor {
-  /* font-family removido */
-}
-
-.template-tech-modern .yoopta-editor h1 {
-  /* color, font-size removidos */
-}
-
-.template-tech-modern .yoopta-editor h2 {
-  /* color, font-size, font-weight, border-bottom removidos */
-}
-
-.template-tech-modern .yoopta-editor p {
-  /* font-size removido */
-}
-
-.template-tech-modern .yoopta-editor p[data-element-id="idStack"] {
-  /* Estilo específico mantido */
-  background-color: #f1f5f9;
-  padding: 0.5rem;
-  border-left: 3px solid #0ea5e9;
-}
-
-/* Template Portfólio Visual */
-.template-visual-portfolio .yoopta-editor {
-  /* Mantido para layout */
-  position: relative;
-  padding-left: 120px;
-}
-
-.template-visual-portfolio .yoopta-editor p[data-element-id="idPlaceholderFotoLateral"] {
-  /* Mantido para layout */
-  position: absolute;
-  top: 20px;
-  left: 20px;
-  width: 80px;
-  height: 80px;
-  background: #e2e8f0;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 0.7rem;
-  color: #64748b;
-  text-align: center;
-}
-
-.template-visual-portfolio .yoopta-editor h1 {
-  /* color, font-size removidos */
-}
-
-.template-visual-portfolio .yoopta-editor h2 {
-  /* color, font-size removidos */
-}
-
-/* Template Executivo Ousado */
-.template-bold-executive .yoopta-editor h1 {
-  /* font-family, font-size, color, text-transform, letter-spacing, border-bottom removidos */
-}
-
-.template-bold-executive .yoopta-editor p[data-element-id="idPlaceholderFotoTopo"] {
-  /* Mantido para layout */
-  float: right;
-  width: 90px;
-  height: 90px;
-  background: #f3f4f6;
-  border: 2px solid #dc2626;
-  /* Estilos de placeholder */
-}
-
-.template-bold-executive .yoopta-editor h2 {
-  /* color, font-size, text-transform, font-weight, margin-top removidos */
-}
-
-/* Template Minimalista Clean */
-.template-clean-minimalist .yoopta-editor {
-  /* Mantido para layout */
-  /* font-family removido */
-  max-width: 750px;
-  margin: auto;
-  padding: 40px;
-}
-
-.template-clean-minimalist .yoopta-editor h1 {
-  /* font-size, font-weight, text-align, margin-bottom removidos */
-}
-
-.template-clean-minimalist .yoopta-editor p {
-  /* font-size, color, text-align removidos */
-}
-
-.template-clean-minimalist .yoopta-editor .yoopta-divider {
-  /* Estilos específicos para o divider removidos (devem vir do Yoopta) */
-}
-
-.template-clean-minimalist .yoopta-editor h2 {
-  /* font-size, font-weight, letter-spacing, text-transform, color, margin-top removidos */
-}
-
-/* Template Duas Colunas */
-.template-two-column .yoopta-editor {
-  /* Mantido para layout flex */
-  display: flex;
-  gap: 30px;
-}
-
-.template-two-column .editor-container>div {
-  /* Mantido para layout flex */
-  flex: 1;
-}
-
-.template-two-column p[data-element-id="idColunaEsquerda"],
-.template-two-column p[data-element-id="idPlaceholderFotoColuna"] {
-  /* Mantido para simulação de coluna */
-  flex-basis: 30%;
-  background-color: #f9fafb;
-  padding: 15px;
-  font-style: italic;
-  color: gray;
-  order: -1;
-}
-
-.template-two-column h1,
-.template-two-column h2,
-.template-two-column p:not([data-element-id^="idColuna"]):not([data-element-id^="idPlaceholder"]) {
-  /* Mantido para simulação de coluna */
-  flex-basis: 70%;
-}
-
-/* Template Foco na Timeline */
-.template-timeline-focused .yoopta-editor h2 {
-  /* text-align, color removidos */
-}
-
-.template-timeline-focused .yoopta-editor h3[data-element-id^="idTimelineItem"] {
-  /* margin-top, position, padding-left, font-size, color removidos */
-}
-
-.template-timeline-focused .yoopta-editor h3[data-element-id^="idTimelineItem"]::before {
-  /* Regra removida */
-}
-
-.template-timeline-focused .yoopta-editor [data-element-id^="idTimelineDesc"] {
-  /* margin-left, border-left, padding-left, padding-bottom removidos */
-}
-
-/* ---> Template Barra Horizontal --- */
-.template-horizontal-bar .yoopta-editor {
-  /* font-family: 'Inter', sans-serif; */
-  /* Exemplo de fonte */
-  padding: 0;
-  /* Remover padding geral se a barra cuidar disso */
-}
-
-.template-horizontal-bar .yoopta-editor .yoopta-heading-one {
-  /* Estilos específicos para o H1 na barra, se necessário */
-  /* Ex: color: white; padding: 1rem; */
-}
 
 .prose :where(strong):not(:where([class~="not-prose"], [class~="not-prose"] *)) {
   @apply text-foreground;
 }
 
+.ProseMirror p,
+.ProseMirror h1,
+.ProseMirror h2,
+.ProseMirror h3,
+.ProseMirror ol,
+.ProseMirror pre {
+  padding: 1px !important;
+  margin: 0 !important;
+}
+
+ul,
+ol {
+  padding: 0 1rem !important;
+  margin: 0 0 0 0.4rem !important;
+
+  li p {
+    margin-top: 0.25em !important;
+    margin-bottom: 0.25em !important;
+    margin-left: -0.5rem !important;
+  }
+}
+
+
+.lg\:prose-lg :where(ul > li):not(:where([class~="not-prose"], [class~="not-prose"] *)) {
+  padding-left: 4px !important;
+}
+
+.lg\:prose-lg :where(ul > li):not(:where([class~="not-prose"], [class~="not-prose"] *)) {
+  margin-bottom: 0.1rem !important;
+  margin-top: 0.1rem !important;
+  line-height: 1.2 !important;
+}
+
+.lg\:prose-lg :where(hr):not(:where([class~="not-prose"], [class~="not-prose"] *)) {
+  margin-top: 0.5rem !important;
+  margin-bottom: 0.5rem !important;
+}
+
+.sm\:prose {
+  max-width: 27.1cm !important;
+}
+
+::selection {
+  background-color: hsl(var(--primary) / 0.4) !important;
+  color: #fff !important;
+}
+
+
+.ProseMirror .is-empty:has(.block-content) [data-node-view-content-react]::before {
+  content: "Digite algo ou pressione '/' para comandos...";
+  /* Pega o texto do atributo data-placeholder */
+  float: left;
+  color: #adb5bd;
+  /* Cor padrão do placeholder Tiptap */
+  pointer-events: none;
+  height: 0;
+}
+
+.sm\:prose :where(strong):not(:where([class~="not-prose"], [class~="not-prose"] *)) {
+  color: inherit !important;
+}
 
 .container {
   max-width: 800px;
@@ -840,71 +296,314 @@ li[data-content-type="listBulletItem"] {
   flex: 2;
 }
 
-.slot.bottom {
-  height: 150px;
+
+.swapable-item:not([data-swapy-dragging]) {
+  /* z-index: 1 !important; */
+  overflow: visible !important;
 }
 
-.slot {
-  border-radius: 10px;
+[data-swapy-dragging] {
+  z-index: 999999 !important;
+  overflow: hidden;
+  box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.1);
 }
 
-.slot[data-swapy-highlighted] {
-  background: rgba(255, 255, 255, 0.2);
+
+.drag-over {
+  border: 2px dashed #4a9eff;
+  background-color: rgba(74, 158, 255, 0.05);
 }
 
-.item {
+/* Estilização para tornar os blocos visíveis */
+.ProseMirror p,
+.ProseMirror h1,
+.ProseMirror h2,
+.ProseMirror h3,
+.ProseMirror ul,
+.ProseMirror ol,
+.ProseMirror pre {
+  margin: 0.5em 0;
+  padding: 0.2em 0.4em;
+  border-radius: 0.25em;
+}
+
+.ProseMirror p:hover,
+.ProseMirror h1:hover,
+.ProseMirror h2:hover,
+.ProseMirror h3:hover,
+.ProseMirror ul:hover,
+.ProseMirror ol:hover,
+.ProseMirror pre:hover {
+  /* background-color: rgba(0, 0, 0, 0.03); */
+}
+
+/* Estilos para os handles de arrasto */
+.handle-overlay {
+  font-size: 14px;
+  z-index: 100;
+}
+
+.handle-add {
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
+  border-radius: 3px;
+  transition: background-color 0.2s;
 }
 
-.item {
-  border-radius: 10px;
-  height: 100%;
+.handle-drag{
+  @apply absolute flex items-center justify-center  rounded-sm right-[2px] top-[2px]  group-hover/grid-item:opacity-100 opacity-0 transition-opacity duration-300;
+  min-height: 16px;
+  min-width: 16px;
+}
+/* Estilo para o destino de drop */
+.drag-highlight {
+  outline: 2px dashed #4a9eff !important;
+  background-color: rgba(74, 158, 255, 0.05) !important;
 }
 
-.item-a {
-  background: #10b981;
+/* Estilos para os blocos arrastáveis */
+.draggable-block {
+  cursor: grab;
+  position: relative;
+  transition: background-color 0.2s;
 }
 
-.item-b {
-  background: #be123c;
+.draggable-block:hover {
+  background-color: rgba(0, 0, 0, 0.02);
 }
 
-.item-c {
-  background: #4338ca;
+.draggable-block:active {
+  cursor: grabbing;
 }
 
-.item-d {
-  background: #7e22ce;
+.ProseMirror .selected {
+  background-color: rgba(74, 158, 255, 0.15);
+  /* Exemplo: um fundo azul claro translúcido */
 }
 
-.item:has(.handle) {
+/* Tentar aumentar a especificidade para o alinhamento do Tiptap */
+.ProseMirror p[style*="text-align: center"],
+.ProseMirror h1[style*="text-align: center"],
+.ProseMirror h2[style*="text-align: center"],
+.ProseMirror h3[style*="text-align: center"] {
+  text-align: center;
+}
+
+.ProseMirror p[style*="text-align: right"],
+.ProseMirror h1[style*="text-align: right"],
+.ProseMirror h2[style*="text-align: right"],
+.ProseMirror h3[style*="text-align: right"] {
+  text-align: right;
+}
+
+.ProseMirror p[style*="text-align: left"],
+.ProseMirror h1[style*="text-align: left"],
+.ProseMirror h2[style*="text-align: left"],
+.ProseMirror h3[style*="text-align: left"] {
+  /* O padrão do Prose geralmente é left, mas podemos forçar se necessário */
+  text-align: left;
+}
+
+
+.ProseMirror h1 {
+  font-size: 28px;
+  line-height: 36px;
+}
+
+.ProseMirror h2 {
+  font-size: 20px;
+  line-height: 26px;
+}
+
+.ProseMirror h3 {
+  font-size: 16px;
+  line-height: 21px;
+}
+
+.ProseMirror p {
+  font-size: 12px;
+  line-height: 18px;
+}
+
+.ProseMirror small {
+  font-size: 10px;
+  line-height: 12px;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* React component */
+.react-component {
+  background-color: hsl(var(--primary) / 0.1) !important;
+  border: 2px solid hsl(var(--primary) / 0.5) !important;
+  border-radius: 0.5rem;
+  margin: 2rem 0;
+  position: relative;
+
+  label {
+    background-color: hsl(var(--primary) / 0.5) !important;
+    border-radius: 0 0 0.5rem 0;
+    color: var(--white);
+    font-size: 0.75rem;
+    font-weight: bold;
+    padding: 0.25rem 0.5rem;
+    position: absolute;
+    top: 0;
+  }
+
+  .content {
+    margin-top: 1.5rem;
+    padding: 1rem;
+
+    &.is-editable {
+      border: 2px dashed var(--gray-3);
+      border-radius: 0.5rem;
+      margin: 2.5rem 1rem 1rem;
+      padding: 0.5rem;
+    }
+  }
+}
+
+.react-grid-item.grid-item{
+  overflow: inherit !important;
+}
+
+.handle-drag {
+  transition: opacity 0.2s ease-in-out !important;
+  cursor: move !important;
+  z-index: 999999 !important;
+}
+
+.react-resizable-handle {
+  transition: opacity 0.2s ease-in-out !important;
+}
+
+.react-resizable-handle:hover {
+  opacity: 1 !important;
+}
+.react-grid-item > .react-resizable-handle::after{
+  /* background-color: hsl(var(--primary) / 0.7) !important; */
+  border: 0 !important;
+}
+.react-resizable-handle{
+  background-image: none !important;
+}
+.react-resizable-handle-sw:after{
+  overflow: hidden !important;
+}
+.react-resizable-handle-se:after{
+  overflow: hidden !important;
+}
+.react-resizable-handle-nw:after{
+  overflow: hidden !important;
+}
+.react-grid-item > .react-resizable-handle.react-resizable-handle-e{
+  transform: rotate(0deg) !important;
+  height: 100% !important;
+  top: 0 !important;
+  right: 0 !important;
+  margin-top: 0 !important;
+  width: 4px !important;
+}
+.react-grid-item > .react-resizable-handle.react-resizable-handle-e::after{
+  top: 0 !important;
+  margin-top: 0 !important;
+  height: 100% !important;
+  width: 2px !important;
+  right: 0px !important;
+}
+
+.react-grid-item > .react-resizable-handle.react-resizable-handle-w{
+  transform: rotate(0deg) !important;
+  height: 100% !important;
+  top: 0 !important;
+  left: 0 !important;
+  margin-top: 0 !important;
+  width: 4px !important;
+}
+.react-grid-item > .react-resizable-handle.react-resizable-handle-w::after{
+  top: 0 !important;
+  margin-top: 0 !important;
+  height: 100% !important;
+  width: 2px !important;
+  left: 0px !important;
+}
+
+.react-grid-item > .react-resizable-handle.react-resizable-handle-n{
+  transform: rotate(0deg) !important;
+  height: 2px !important;
+  top: 0 !important;
+  left: 0 !important;
+  margin-left: 0 !important;
+  width: 100% !important;
+}
+.react-grid-item > .react-resizable-handle.react-resizable-handle-n::after{
+  top: 0 !important;
+  margin-left: 0 !important;
+  height: 2px !important;
+  width: 100% !important;
+  left: 0px !important;
+}
+
+.react-grid-item > .react-resizable-handle.react-resizable-handle-s{
+  transform: rotate(0deg)  !important;
+  width: 100% !important;
+  height: 2px !important;
+  bottom: 0 !important; 
+  left: 0 !important;
+  margin-left: 0 !important;
+}
+.react-grid-item > .react-resizable-handle.react-resizable-handle-s::after{
+  margin-left: 0 !important;
+  height: 2px !important;
+  width: 100% !important;
+  left: 0px !important;
+  bottom: 0 !important;
+}
+
+.react-grid-item > .react-resizable-handle{
+  z-index: 101 !important;
+}
+
+
+
+.react-grid-item.react-grid-placeholder{
+  background-color: hsl(var(--primary) / 0.1) !important;
+  border: 2px dashed hsl(var(--primary) / 0.5) !important;
+  border-radius: 0.5rem;
   position: relative;
 }
-
-.handle {
-  cursor: grab;
-  width: 24px;
-  height: 24px;
-  opacity: 0.5;
-  background-color: #000;
-  position: absolute;
-  top: 14px;
-  left: 10px;
+blockquote{
+  margin-left: 4px !important;
 }
-
-.w-split-horizontal > .w-split-bar::before, .w-split-horizontal > .w-split-bar::after{
-  width: 2px !important;
-  display: none !important;
+.sm\:prose :where(blockquote p:first-of-type):not(:where([class~="not-prose"],[class~="not-prose"] *))::before{
+  content: none !important;
 }
-
-.w-split-vertical > .w-split-bar::before, .w-split-vertical > .w-split-bar::after{
-  height: 2px !important;
-  display: none !important;
+.lg\:prose-lg :where(blockquote):not(:where([class~="not-prose"],[class~="not-prose"] *)){
+  margin-top: 0 !important;
+  margin-bottom: 0 !important;
 }
 
 
+.badge {
+  background-color: #0932b8;
+  padding: 2px 8px;
+  border-radius: 8px;
+  font-size: inherit;
+  font-family: sans-serif;
+  margin-right: 4px;
+  display: inline-block;
+}
 
 

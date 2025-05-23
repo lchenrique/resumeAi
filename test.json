@@ -1,0 +1,140 @@
+{
+  "version": "6.1",
+  "id": "medtime-bot-001",
+  "name": "MedTime Bot",
+  "events": [
+    {
+      "id": "start_event",
+      "outgoingEdgeId": "edge_to_inicio",
+      "graphCoordinates": {
+        "x": 0,
+        "y": 0
+      },
+      "type": "start"
+    }
+  ],
+  "groups": [
+    {
+      "id": "grupo_inicial",
+      "title": "Fluxo Principal",
+      "graphCoordinates": {
+        "x": 0,
+        "y": 200
+      },
+      "blocks": [
+        {
+          "id": "inicio",
+          "type": "text",
+          "content": "Olá! Sou a Elyse, sua assistente do MedTime 💊. Como posso te ajudar hoje?",
+          "options": {
+            "buttons": [
+              {
+                "id": "btn_cadastro",
+                "content": "Cadastrar um novo medicamento ➕",
+                "outgoingEdgeId": "edge_to_cadastro"
+              },
+              {
+                "id": "btn_lembretes",
+                "content": "Gerenciar lembretes ⏰",
+                "outgoingEdgeId": "edge_to_lembretes"
+              },
+              {
+                "id": "btn_duvidas",
+                "content": "Dúvidas sobre o app ❓",
+                "outgoingEdgeId": "edge_to_duvidas"
+              },
+              {
+                "id": "btn_suporte",
+                "content": "Falar com o suporte 🧑‍💻",
+                "outgoingEdgeId": "edge_to_suporte"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "grupo_cadastro",
+      "title": "Cadastro de Medicamento",
+      "graphCoordinates": {
+        "x": 300,
+        "y": 200
+      },
+      "blocks": [
+        {
+          "id": "cadastro_medicamento",
+          "type": "text",
+          "content": "Vamos cadastrar seu medicamento! 😊\nMe diga, qual tipo de medicamento você quer cadastrar?",
+          "options": {
+            "buttons": [
+              {
+                "id": "btn_comprimido",
+                "content": "Comprimido",
+                "outgoingEdgeId": "edge_to_horario"
+              },
+              {
+                "id": "btn_capsula",
+                "content": "Cápsula",
+                "outgoingEdgeId": "edge_to_horario"
+              },
+              {
+                "id": "btn_xarope",
+                "content": "Xarope",
+                "outgoingEdgeId": "edge_to_horario"
+              },
+              {
+                "id": "btn_outro",
+                "content": "Outro",
+                "outgoingEdgeId": "edge_to_horario"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "edges": [
+    {
+      "id": "edge_to_inicio",
+      "from": {
+        "eventId": "start_event"
+
+      },
+      "to": {
+        "groupId": "grupo_inicial"
+      }
+    },
+    {
+      "id": "edge_to_cadastro",
+      "from": {
+        "groupId": "grupo_inicial",
+        "blockId": "inicio"
+      },
+      "to": {
+        "groupId": "grupo_cadastro"
+      }
+    }
+  ],
+  "variables": [],
+  "theme": {},
+  "selectedThemeTemplateId": null,
+  "settings": {
+    "general": {
+      "name": "MedTime Bot",
+      "description": "Bot para gerenciamento de medicamentos e lembretes",
+      "isBrandingEnabled": true
+    }
+  },
+  "createdAt": "2024-03-21T00:00:00.000Z",
+  "updatedAt": "2024-03-21T00:00:00.000Z",
+  "icon": null,
+  "folderId": null,
+  "publicId": null,
+  "customDomain": null,
+  "workspaceId": "medtime-workspace-001",
+  "resultsTablePreferences": null,
+  "isArchived": false,
+  "isClosed": false,
+  "whatsAppCredentialsId": null,
+  "riskLevel": null
+} 
