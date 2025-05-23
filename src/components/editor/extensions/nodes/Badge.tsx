@@ -88,7 +88,7 @@ export const Badge = Node.create({
   addInputRules() {
     return [
       new InputRule({
-        find: /::([^,]+),$/,
+        find: /\|([^|]+)\|$/,
         handler: ({ chain, range, match }) => {
           const label = match[1]
           if (label) {
